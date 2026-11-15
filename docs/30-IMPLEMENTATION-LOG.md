@@ -1,5 +1,19 @@
 # 30 — Implementation Log
 
+## Fase 10 — Fondasi RES-201 Hasil Lomba (16 November 2026)
+
+### Scope selesai
+
+- Kontrak TypeScript dan schema Zod untuk pengajuan hasil berbasis `branchId`, `divisionId`, slot penghargaan dinamis, `entryId`, berita acara, tanggal penetapan, dan catatan terbatas.
+- Validasi satu sampai enam slot, award ID unik, entry pemenang unik, ID teknis stabil, dan payload strict yang menolak field asing termasuk `score`/`nilai`.
+- Lima unit test mencakup payload valid, entry ganda, slot ganda, field skor terlarang, dan metadata penetapan invalid.
+
+### Default aman dan tahap lanjutan
+
+- UI input hasil tetap feature-off karena daftar `awardSlots` per golongan belum disahkan dan belum tersedia pada konfigurasi admin.
+- Tahap berikutnya menambahkan konfigurasi award slot draft, rules/repository pengajuan atomik, pemilihan hanya registration `verified`, lalu UI responsif.
+- Tidak ada data hasil resmi, klasemen, atau publikasi yang dibuat pada fase fondasi ini.
+
 ## Fase 09 — REG-104 Ekspor Registrasi Privat (16 November 2026)
 
 ### Scope selesai

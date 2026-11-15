@@ -20,6 +20,7 @@ Status `OPEN` = belum menjadi keputusan resmi, jangan diprogram hardcode; `PROPO
 | D-14 | Aturan koreksi hasil & otorisasi akhir | Admin pusat dengan audit | PROPOSED | Panitia |
 | D-15 | Kebutuhan SEO social card per artikel | SPA fallback sampai solusi tanpa billing disepakati | OPEN | Kominfo |
 | D-16 | Otorisasi verifikasi final peserta | Feature off; wajib endpoint Worker server-authoritative dan audit | PROPOSED | Sekretariat/Developer |
+| D-17 | Slot penghargaan per golongan untuk input hasil | Array konfigurasi `awardSlots`; input hasil feature-off bila kosong/belum disahkan | PROPOSED | Panitia/Event Admin |
 
 ## Protokol perubahan
 - Catat siapa, kapan, apa dasar dokumen keputusan, nomor surat dan versi schema.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.9.0 — 16 November 2026
+
+### Ditambahkan
+
+- Kontrak dan schema strict pengajuan hasil lomba dengan slot penghargaan dinamis tanpa skor.
+- Validasi pemenang unik, slot unik, metadata berita acara, tanggal penetapan, dan batas enam penghargaan.
+- Lima unit test keamanan payload hasil.
+
+### Keamanan produk
+
+- Field asing seperti `score` atau `nilai` ditolak.
+- UI hasil tetap feature-off sampai slot penghargaan dikonfigurasi dan disahkan; aplikasi tidak mengarang Juara I/II/III.
+
 ## 0.8.0 — 16 November 2026
 
 ### Ditambahkan
