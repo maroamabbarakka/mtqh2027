@@ -1,5 +1,5 @@
-import mtqhLogo from '../../../../Logo MTQH XXXV Pinrang 2027.png'
-import lptqLogo from '../../../../Lambang LPTQ Kabupaten Pinrang.png'
-import pinrangLogo from '../../../../Logo_Pinrang.png'
+import mtqhLogo from '../assets/logo-mtqh-xxxv.webp'
+import lptqLogo from '../assets/logo-lptq-pinrang.webp'
+import pinrangLogo from '../assets/logo-pinrang.webp'
 
 export const brandAssets = { mtqhLogo, lptqLogo, pinrangLogo }

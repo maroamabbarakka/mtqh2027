@@ -6,6 +6,7 @@
 
 - Kandidat uji coba dibatasi untuk demonstrasi internal dengan data simulasi; belum merupakan rilis produksi.
 - Firebase Hosting dikonfigurasi dengan CSP, anti-frame, nosniff, referrer policy, permissions policy, immutable asset cache, dan `no-cache` untuk shell HTML.
+- Tiga logo sumber tetap dipertahankan; varian WebP 1024 px digunakan pada runtime untuk menurunkan payload dan meningkatkan keberhasilan deployment tanpa mengubah fungsi identitas.
 - Environment lokal produksi dan emulator tetap diabaikan Git; build output, debug log, dan credential file tidak masuk source control.
 
 ### Batas rilis
