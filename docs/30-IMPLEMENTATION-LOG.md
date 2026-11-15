@@ -1,0 +1,172 @@
+# 30 — Implementation Log
+
+## Fase 07 — Hardening Kandidat Uji Coba (16 November 2026)
+
+### Scope
+
+- Kandidat uji coba dibatasi untuk demonstrasi internal dengan data simulasi; belum merupakan rilis produksi.
+- Firebase Hosting dikonfigurasi dengan CSP, anti-frame, nosniff, referrer policy, permissions policy, immutable asset cache, dan `no-cache` untuk shell HTML.
+- Environment lokal produksi dan emulator tetap diabaikan Git; build output, debug log, dan credential file tidak masuk source control.
+
+### Batas rilis
+
+- Checklist identitas resmi, aturan lomba, privasi, operasional, dan verifikasi final belum disahkan.
+- Akun produksi tidak dibuat otomatis. Pengujian workflow lengkap tetap menggunakan Auth/Firestore Emulator.
+- Deployment yang diizinkan pada fase ini hanya preview/uji coba berlabel simulasi, bukan kanal produksi resmi.
+
+## Fase 06 — Pengajuan & Pemeriksaan Administratif (16 November 2026)
+
+### Scope selesai
+
+- Transisi `draft/revision_required → submitted → under_review → revision_required/rejected` dengan timestamp server, actor, idempotency key, dan audit atomik.
+- UI tindakan berbasis role, filter status, indikator antrean, modal keputusan, dan alasan wajib 10–300 karakter.
+- Admin kafilah hanya mengajukan entri buatannya sendiri; reviewer berbeda mengambil pemeriksaan dan hanya reviewer tersebut yang dapat memutuskan.
+- Status `verified` sengaja tetap tidak tersedia dari browser dan ditolak oleh Firestore Rules.
+
+### Quality gate
+
+- Frontend: 12 unit tests; Worker: 5 unit tests.
+- Firestore Emulator: 14 integration tests termasuk self-review, alasan pendek, transisi ilegal, dan percobaan `verified` dari client.
+- Playwright: alur dua akun admin kafilah → verifikator lulus; screenshot desktop/mobile tersimpan di `artifacts/screenshots/phase-06/`.
+
+### Dampak kuota dan batas fase
+
+- Setiap perubahan status memakai dua writes atomik: registration dan event audit; tidak ada realtime listener.
+- Pemeriksaan tidak mengunggah berkas identitas dan tidak menambah data sensitif baru.
+- Verifikasi final memerlukan endpoint Worker yang membaca role server-trusted, memvalidasi idempotensi, dan menulis transaksi dengan audit. Fitur tetap off sampai prasyarat itu selesai.
+
+## Fase 05 — REG-102 Pendaftaran Peserta & Regu Draft (16 November 2026)
+
+### Scope selesai
+
+- Daftar pendaftaran privat dengan query dibatasi maksimal 50 entri dan pencarian lokal.
+- Wizard tiga langkah untuk peserta individual dan regu; kecamatan admin kafilah terkunci oleh assignment.
+- Entitas peserta/regu, registration, dan event audit ditulis dalam satu batch atomik dengan idempotency key.
+- Semua entri baru tetap `draft` dan `needs_manual_review`; NIK, tanggal lahir, berkas identitas, serta foto tidak dikumpulkan.
+- State loading, empty, error, offline, permission/read-only, dan success tersedia pada layar pendaftaran.
+
+### Keamanan dan pengujian
+
+- Rules membatasi schema create, scope kecamatan, actor UID, timestamp server, ukuran anggota regu, dan audit append-only.
+- Verifikator hanya membaca pada slice ini; create hanya untuk super admin, event admin, dan admin kafilah.
+- Frontend memiliki 11 unit tests; Firestore Emulator memiliki 13 rules integration tests termasuk negative test lintas wilayah.
+- Playwright flow pendaftaran admin kafilah lulus; screenshot desktop dan mobile tersimpan di `artifacts/screenshots/phase-05/`.
+
+### Dampak kuota dan batas fase
+
+- Halaman menggunakan pembacaan sekali jalan tanpa realtime listener; master data dan 50 pendaftaran terbaru dimuat paralel.
+- Setiap pendaftaran menghasilkan tiga writes atomik: entitas privat, registration, dan audit.
+- Pemeriksaan duplikat UI hanya proteksi awal. Enforcement global, edit/submit, review verifikator, CSV, dan export dilanjutkan pada slice berikutnya.
+- Golongan, usia, dan kuota masih draft sehingga sistem tidak mengambil keputusan eligibility otomatis.
+
+## Fase 04 — REG-101 Master Data Draft (16 November 2026)
+
+### Scope selesai
+
+- Event draft, 12 kecamatan resmi, delapan cabang referensi draft, dan tiga golongan contoh.
+- Halaman admin responsif dengan tab, pencarian, loading, empty, error, offline, permission, dan success state.
+- Create/update cabang dan golongan dengan ID stabil, revision counter, idempotency key, dan audit atomik.
+- Delete fisik, enable, serta approval master data tetap ditolak.
+
+### Quality gate
+
+- Frontend: 9 unit tests lulus; Worker: 5 unit tests lulus.
+- Firestore Emulator: 12 rules integration tests lulus.
+- Playwright: 3 E2E tests lulus termasuk write master oleh Admin Event dan viewport 390 px tanpa overflow.
+- Screenshot tersimpan di `artifacts/screenshots/phase-04/`.
+
+### Dampak kuota
+
+- Halaman memuat empat request paralel berukuran kecil: event, kecamatan, cabang, dan golongan; tanpa realtime listener.
+- Setiap perubahan master menghasilkan dua writes atomik: satu resource dan satu audit.
+- Pencarian dilakukan lokal karena koleksi master kecil; tidak menambah Firestore reads per ketikan.
+
+### Batas fase
+
+- Cabang/golongan seed hanya referensi draft, `enabled=false`, dan bukan keputusan resmi.
+- Perubahan status approved/published belum tersedia dan harus melalui Worker tepercaya pada fase approval.
+- Registrasi peserta/regu, verifikasi, CSV, export, dan jadwal belum dikerjakan pada slice ini.
+
+## Fase 03 — User Lifecycle, Profil & Activity (15 November 2026)
+
+### Scope selesai
+
+- Akun emulator untuk delapan role, password sementara, dan first-login password gate.
+- Profil privat mandiri, daftar assignment read-only, perubahan password dengan reauthentication, dan aktivitas akun append-only.
+- Navigasi profil, UI desktop/mobile, serta Playwright E2E berbasis build mode emulator.
+
+### Quality gate
+
+- Frontend 6 unit tests dan Worker 5 unit tests lulus.
+- Firestore Emulator 9 rules integration tests lulus.
+- Playwright 2 E2E tests lulus; screenshot desktop dan 390 px tersimpan di `artifacts/screenshots/phase-03/`.
+
+### Batas fase
+
+- Akun hanya ada di Auth Emulator; tidak ada user produksi dibuat.
+- `users/{uid}/activity` adalah log operasional client-terbatas, bukan pengganti audit sensitif Worker.
+- Pembuatan/penonaktifan akun dan assignment role produksi belum memiliki endpoint administratif.
+- `npm audit --omit=dev` melaporkan advisory transitive `@grpc/grpc-js` melalui Firebase; saran otomatis adalah downgrade mayor Firebase sehingga tidak diterapkan. Pantau rilis upstream dan evaluasi ulang sebelum deploy.
+
+## Fase 02 — Auth, RBAC & Security Boundary (15 November 2026)
+
+### Scope selesai
+
+- Firebase Auth provider modular dan mode emulator eksplisit.
+- Login, reset password, pending/disabled account, protected route, permission-aware sidebar, serta sign-out.
+- Firestore Rules default-deny dengan akses event/kecamatan/cabang dan public projection.
+- Fixture Auth + role assignment emulator melalui script bootstrap lokal yang dikunci ke flag emulator.
+- Worker skeleton read/no-write untuk verifikasi token dan request envelope.
+
+### Quality gate
+
+- Frontend: 6 unit tests.
+- Worker: 5 unit tests.
+- Firestore Emulator: 6 rules integration tests, seluruhnya lulus.
+- Lint dan TypeScript strict frontend/Worker lulus.
+- Build produksi lulus; bundle awal portal publik turun dari sekitar 716 KB menjadi 337 KB minified setelah route/component code splitting.
+- Screenshot login desktop dan mobile tersimpan di `artifacts/screenshots/phase-02/`.
+
+### Batas fase
+
+- Auth provider produksi belum diaktifkan melalui Firebase Console oleh agent.
+- Tidak ada akun produksi yang dibuat dan tidak ada role produksi yang ditulis.
+- Worker belum dideploy dan belum memiliki service credential.
+- Approval hasil, assign role, dan publish tetap belum memiliki endpoint tulis.
+
+### Dampak kuota
+
+- Login memuat maksimum satu dokumen `roleAssignments/{uid}` dan hanya refresh saat perubahan auth/permintaan manual.
+- Rules membaca role assignment pada akses privat; query UI harus tetap scope-aware untuk menekan read dan menghindari denial.
+
+## Fase 01 — Foundation UI (15 November 2026)
+
+### Scope selesai
+
+- Monorepo dan quality scripts.
+- `PublicShell` dan `AdminShell` responsif.
+- Beranda publik, dashboard admin, klasemen demonstrasi, route placeholder aman, halaman 403 dan state dasar.
+- Tiga logo paket digunakan menurut fungsi identitasnya. Otorisasi final tetap mengikuti D-11 dan tidak diubah menjadi `APPROVED`.
+- Firebase Hosting SPA dan Firestore default-deny.
+
+### Quality gate
+
+- `npm run lint`: lulus.
+- `npm run typecheck`: lulus.
+- `npm run test`: 2 unit test lulus.
+- `npm run build`: lulus.
+- HTTP preview `/` dan `/app/dashboard`: 200 melalui SPA fallback.
+- Screenshot: `artifacts/screenshots/phase-01/`.
+
+### Batas fase
+
+- Firebase Auth, RBAC, rules granular, emulator integration test, formulir pendaftaran, workflow hasil, CMS, Worker, dan API belum diimplementasikan.
+- PNG sumber beresolusi tinggi menghasilkan payload aset sekitar 4 MB; perlu turunan WebP/AVIF yang disetujui tanpa mengganti master asli.
+- Bundle awal memuat chart dan masih perlu route-level code splitting.
+
+### Keputusan aman
+
+- Seluruh data operasional tetap simulasi/draft.
+- Logo ditampilkan sebagai aset paket dengan label menunggu verifikasi panitia.
+- Tidak ada write produksi dan tidak ada deployment.
+- Konfigurasi Firebase client disimpan pada `.env.local` yang diabaikan Git. `storageBucket` dari snippet konsol tidak diteruskan ke aplikasi karena Cloud Storage dilarang pada arsitektur Spark-only ini.

@@ -1,0 +1,11 @@
+name = "mtqh-pinrang-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-15"
+workers_dev = true
+
+[vars]
+FIREBASE_PROJECT_ID = "mtqhpinrang2027"
+ALLOWED_ORIGINS = "http://localhost:5173"
+
+# Secret tidak boleh ditulis di file ini. Untuk pengembangan lokal gunakan `.dev.vars` yang diabaikan Git.
+# Produksi kelak menggunakan `wrangler secret put`, setelah IAM minimum dan review keamanan disetujui.

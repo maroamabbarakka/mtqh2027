@@ -1,0 +1,6 @@
+import { Clock3, LogOut, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Navigate } from 'react-router-dom'
+import { Brand } from '@/components/Brand'
+import { Button } from '@/components/ui'
+import { useAuth } from '@/features/auth/AuthContext'
+export function PendingAccountPage(){const auth=useAuth();if(!auth.user)return <Navigate to="/login" replace/>;if(!auth.loading&&!auth.disabled&&auth.assignments.length>0)return <Navigate to="/app/dashboard" replace/>;return <main className="simple-auth pending-page"><div className="auth-form-wrap"><Brand/><span className="auth-icon pending"><Clock3/></span><h1>{auth.disabled?'Akun dinonaktifkan':'Akun menunggu aktivasi'}</h1><p>{auth.disabled?'Akses akun ini sedang ditangguhkan. Hubungi administrator acara.':'Autentikasi berhasil, tetapi akun belum memiliki penugasan aktif.'}</p><div className="safe-default"><ShieldCheck/><span>Peran tidak diberikan otomatis dari profil atau alamat email.</span></div>{auth.error&&<div className="form-alert">{auth.error}</div>}<Button onClick={()=>auth.refreshAssignments()}><RefreshCw/> Periksa kembali akses</Button><Button variant="secondary" onClick={()=>auth.signOutUser()}><LogOut/> Keluar</Button></div></main>}

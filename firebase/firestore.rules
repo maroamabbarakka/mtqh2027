@@ -1,0 +1,272 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function own(uid) { return signedIn() && request.auth.uid == uid; }
+    function roleDoc() { return get(/databases/$(database)/documents/roleAssignments/$(request.auth.uid)); }
+    function enabledAccount() { return signedIn() && roleDoc().data.disabled != true; }
+    function eventAccess(eventId) { return roleDoc().data.accessByEvent[eventId]; }
+    function hasRole(eventId, allowedRoles) {
+      return enabledAccount() && eventAccess(eventId).roles.hasAny(allowedRoles);
+    }
+    function hasDistrict(eventId, districtId) {
+      return hasRole(eventId, ['super_admin', 'event_admin', 'verifier']) ||
+        eventAccess(eventId).districtIds.hasAny([districtId]);
+    }
+    function hasBranch(eventId, branchId) {
+      return hasRole(eventId, ['super_admin', 'event_admin']) ||
+        eventAccess(eventId).branchIds.hasAny([branchId]);
+    }
+    function masterAdmin(eventId) { return hasRole(eventId, ['super_admin','event_admin']); }
+
+    match /publicEvents/{eventId}/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow get: if own(uid);
+      allow list: if false;
+      allow create: if own(uid)
+        && request.resource.data.keys().hasOnly(['uid','displayName','email','status','mustChangePassword','createdAt','updatedAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'pending'
+        && request.resource.data.mustChangePassword == false;
+      allow update: if own(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','phone','organization','position','preferences','mustChangePassword','lastPasswordChangeAt','updatedAt'])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.status == resource.data.status
+        && (request.resource.data.mustChangePassword == resource.data.mustChangePassword
+          || (resource.data.mustChangePassword == true
+            && request.resource.data.mustChangePassword == false
+            && request.resource.data.lastPasswordChangeAt == request.time));
+      allow delete: if false;
+
+      match /activity/{activityId} {
+        allow get, list: if own(uid);
+        allow create: if own(uid)
+          && request.resource.data.keys().hasOnly(['actorUid','action','summary','createdAt','source'])
+          && request.resource.data.actorUid == request.auth.uid
+          && request.resource.data.action in ['login','profile_updated','password_changed']
+          && request.resource.data.summary is string
+          && request.resource.data.summary.size() <= 120
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.source == 'web';
+        allow update, delete: if false;
+      }
+    }
+
+    match /roleAssignments/{uid} {
+      allow get: if own(uid);
+      allow list, create, update, delete: if false;
+    }
+
+    match /events/{eventId} {
+      allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
+      allow write: if false;
+
+      match /districts/{districtId} {
+        allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
+        allow write: if false;
+      }
+
+      match /branches/{branchId} {
+        allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
+        allow create: if masterAdmin(eventId)
+          && request.resource.data.keys().hasOnly(['id','eventId','name','shortName','description','status','enabled','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.id == branchId
+          && request.resource.data.eventId == eventId
+          && request.resource.data.status == 'draft'
+          && request.resource.data.enabled == false
+          && request.resource.data.revision == 1
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update: if masterAdmin(eventId)
+          && resource.data.status == 'draft'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','shortName','description','revision','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.id == resource.data.id
+          && request.resource.data.eventId == resource.data.eventId
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.enabled == resource.data.enabled
+          && request.resource.data.revision == resource.data.revision + 1
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.updatedAt == request.time;
+        allow delete: if false;
+      }
+
+      match /divisions/{divisionId} {
+        allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
+        allow create: if masterAdmin(eventId)
+          && request.resource.data.keys().hasOnly(['id','eventId','branchId','name','gender','teamMode','status','enabled','limitsStatus','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.id == divisionId
+          && request.resource.data.eventId == eventId
+          && exists(/databases/$(database)/documents/events/$(eventId)/branches/$(request.resource.data.branchId))
+          && request.resource.data.status == 'draft'
+          && request.resource.data.enabled == false
+          && request.resource.data.limitsStatus == 'draft_awaiting_juknis'
+          && request.resource.data.revision == 1
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update: if masterAdmin(eventId)
+          && resource.data.status == 'draft'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['branchId','name','gender','teamMode','revision','updatedBy','updatedAt','idempotencyKey'])
+          && exists(/databases/$(database)/documents/events/$(eventId)/branches/$(request.resource.data.branchId))
+          && request.resource.data.id == resource.data.id
+          && request.resource.data.eventId == resource.data.eventId
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.enabled == resource.data.enabled
+          && request.resource.data.limitsStatus == resource.data.limitsStatus
+          && request.resource.data.revision == resource.data.revision + 1
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.updatedAt == request.time;
+        allow delete: if false;
+      }
+
+      match /eventAudit/{auditId} {
+        allow get, list: if hasRole(eventId, ['super_admin','event_admin','oversight']);
+        allow create: if ((masterAdmin(eventId)
+            && request.resource.data.action in ['master_branch_created','master_branch_updated','master_division_created','master_division_updated'])
+          || (hasRole(eventId, ['super_admin','event_admin','kafilah_admin'])
+            && request.resource.data.action in ['registration_created','registration_submitted'])
+          || (hasRole(eventId, ['super_admin','event_admin','verifier'])
+            && request.resource.data.action in ['registration_review_started','registration_revision_requested','registration_rejected']))
+          && request.resource.data.keys().hasOnly(['actorUid','action','resourceType','resourceId','summary','createdAt','idempotencyKey'])
+          && request.resource.data.actorUid == request.auth.uid
+          && ((request.resource.data.action.matches('master_branch_.*') && request.resource.data.resourceType == 'branch')
+            || (request.resource.data.action.matches('master_division_.*') && request.resource.data.resourceType == 'division')
+            || (request.resource.data.action.matches('registration_.*') && request.resource.data.resourceType == 'registration'))
+          && request.resource.data.summary is string
+          && request.resource.data.summary.size() <= 160
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+
+      match /participants/{participantId} {
+        allow read: if hasDistrict(eventId, resource.data.districtId);
+        allow create: if hasDistrict(eventId, request.resource.data.districtId)
+          && hasRole(eventId, ['super_admin','event_admin','kafilah_admin'])
+          && request.resource.data.keys().hasOnly(['eventId','districtId','divisionId','status','fullName','gender','managerName','managerPhone','notes','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.eventId == eventId
+          && request.resource.data.status == 'draft'
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update: if hasDistrict(eventId, resource.data.districtId)
+          && request.resource.data.districtId == resource.data.districtId
+          && hasRole(eventId, ['super_admin','event_admin','kafilah_admin','verifier']);
+        allow delete: if false;
+      }
+
+      match /teams/{teamId} {
+        allow read: if hasDistrict(eventId, resource.data.districtId);
+        allow create: if hasDistrict(eventId, request.resource.data.districtId)
+          && hasRole(eventId, ['super_admin','event_admin','kafilah_admin'])
+          && request.resource.data.keys().hasOnly(['eventId','districtId','divisionId','status','teamName','gender','memberNames','managerName','managerPhone','notes','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.eventId == eventId
+          && request.resource.data.status == 'draft'
+          && request.resource.data.memberNames is list
+          && request.resource.data.memberNames.size() >= 2
+          && request.resource.data.memberNames.size() <= 10
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update, delete: if false;
+      }
+
+      match /registrations/{entryId} {
+        allow read: if hasDistrict(eventId, resource.data.districtId) || hasBranch(eventId, resource.data.branchId);
+        allow create: if hasDistrict(eventId, request.resource.data.districtId)
+          && hasRole(eventId, ['super_admin','event_admin','kafilah_admin'])
+          && request.resource.data.keys().hasOnly(['eventId','districtId','branchId','divisionId','entryType','displayName','participantId','teamId','status','eligibilityStatus','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.eventId == eventId
+          && request.resource.data.entryType in ['individual','team']
+          && request.resource.data.status == 'draft'
+          && request.resource.data.eligibilityStatus == 'needs_manual_review'
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedBy','updatedAt','idempotencyKey','submittedBy','submittedAt','reviewedBy','reviewedAt','reviewReason'])
+          && request.resource.data.eventId == resource.data.eventId
+          && request.resource.data.districtId == resource.data.districtId
+          && request.resource.data.branchId == resource.data.branchId
+          && request.resource.data.divisionId == resource.data.divisionId
+          && request.resource.data.entryType == resource.data.entryType
+          && request.resource.data.displayName == resource.data.displayName
+          && request.resource.data.participantId == resource.data.participantId
+          && request.resource.data.teamId == resource.data.teamId
+          && request.resource.data.createdBy == resource.data.createdBy
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.eligibilityStatus == resource.data.eligibilityStatus
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.updatedAt == request.time
+          && ((hasDistrict(eventId, resource.data.districtId)
+              && hasRole(eventId, ['super_admin','event_admin','kafilah_admin'])
+              && request.auth.uid == resource.data.createdBy
+              && resource.data.status in ['draft','revision_required']
+              && request.resource.data.status == 'submitted'
+              && request.resource.data.submittedBy == request.auth.uid
+              && request.resource.data.submittedAt == request.time)
+            || (hasRole(eventId, ['super_admin','event_admin','verifier'])
+              && request.auth.uid != resource.data.createdBy
+              && resource.data.status == 'submitted'
+              && request.resource.data.status == 'under_review'
+              && request.resource.data.reviewedBy == request.auth.uid
+              && request.resource.data.reviewedAt == request.time)
+            || (hasRole(eventId, ['super_admin','event_admin','verifier'])
+              && resource.data.status == 'under_review'
+              && resource.data.reviewedBy == request.auth.uid
+              && request.resource.data.reviewedBy == resource.data.reviewedBy
+              && request.resource.data.reviewedAt == request.time
+              && request.resource.data.status in ['revision_required','rejected']
+              && request.resource.data.reviewReason is string
+              && request.resource.data.reviewReason.size() >= 10
+              && request.resource.data.reviewReason.size() <= 300));
+        allow delete: if false;
+      }
+
+      match /resultSubmissions/{resultId} {
+        allow read: if hasBranch(eventId, resource.data.branchId) || hasRole(eventId, ['super_admin','event_admin','oversight']);
+        allow create: if hasBranch(eventId, request.resource.data.branchId)
+          && hasRole(eventId, ['branch_admin'])
+          && request.resource.data.submittedBy == request.auth.uid
+          && request.resource.data.status in ['draft','submitted'];
+        allow update: if hasBranch(eventId, resource.data.branchId)
+          && hasRole(eventId, ['branch_admin'])
+          && request.resource.data.branchId == resource.data.branchId
+          && resource.data.submittedBy == request.auth.uid
+          && resource.data.status != 'approved'
+          && request.resource.data.status in ['draft','submitted'];
+        allow delete: if false;
+      }
+
+      match /officialResults/{divisionId} { allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']); allow write: if false; }
+
+      match /news/{articleId} {
+        allow read: if hasRole(eventId, ['super_admin','event_admin','editor']) || (signedIn() && resource.data.authorUid == request.auth.uid);
+        allow create: if hasRole(eventId, ['super_admin','event_admin','editor','contributor'])
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.status == 'draft';
+        allow update: if hasRole(eventId, ['super_admin','event_admin','editor'])
+          || (resource.data.authorUid == request.auth.uid
+            && request.resource.data.authorUid == resource.data.authorUid
+            && request.resource.data.status in ['draft','submitted']);
+        allow delete: if false;
+      }
+
+      match /{document=**} { allow read, write: if false; }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

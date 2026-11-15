@@ -1,0 +1,37 @@
+import { expect, test } from '@playwright/test'
+
+test('super admin wajib mengganti password lalu dapat melengkapi profil', async ({ page }) => {
+  await page.goto('/login')
+  await page.getByLabel('Email', { exact: true }).fill('superadmin@example.test')
+  await page.getByLabel('Kata sandi', { exact: true }).fill('123456')
+  await page.getByRole('button', { name: 'Masuk dengan aman' }).click()
+  await expect(page).toHaveURL(/\/app\/keamanan$/)
+  await expect(page.getByText('Ganti kata sandi sementara')).toBeVisible()
+  await page.screenshot({ path: 'artifacts/screenshots/phase-03/account-security-1440.png', fullPage: true })
+  await page.getByLabel('Nama lengkap').fill('Super Admin Demo Terverifikasi')
+  await page.getByLabel('Instansi / kafilah').fill('Panitia MTQH Pinrang')
+  await page.getByLabel('Jabatan / fungsi').fill('Administrator Sistem')
+  await page.getByRole('button', { name: 'Simpan profil' }).click()
+  await expect(page.getByText('Profil berhasil diperbarui.')).toBeVisible()
+  await page.getByLabel('Kata sandi saat ini').fill('123456')
+  await page.getByLabel('Kata sandi baru', { exact: true }).fill('DemoAman-2027!')
+  await page.getByLabel('Konfirmasi kata sandi baru').fill('DemoAman-2027!')
+  await page.getByRole('button', { name: 'Perbarui kata sandi' }).click()
+  await expect(page.getByText('Kata sandi berhasil diubah.')).toBeVisible()
+  await page.goto('/app/dashboard')
+  await expect(page.getByRole('heading', { name: /Selamat datang/ })).toBeVisible()
+})
+
+test.describe('mobile', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+  test('halaman wajib ganti password tidak overflow', async ({ page }) => {
+    await page.goto('/login')
+    await page.getByLabel('Email', { exact: true }).fill('pengawas@example.test')
+    await page.getByLabel('Kata sandi', { exact: true }).fill('123456')
+    await page.getByRole('button', { name: 'Masuk dengan aman' }).click()
+    await expect(page).toHaveURL(/\/app\/keamanan$/)
+    await page.screenshot({ path: 'artifacts/screenshots/phase-03/account-security-390.png', fullPage: true })
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)
+    expect(overflow).toBe(false)
+  })
+})
