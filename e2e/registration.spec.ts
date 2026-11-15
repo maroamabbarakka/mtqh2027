@@ -27,8 +27,15 @@ test("admin kafilah mengajukan peserta dan verifikator meminta revisi", async ({
   await expect(page.getByText("Peserta Simulasi E2E")).toBeVisible();
   await page.getByRole("button", { name: "Ajukan", exact: true }).click();
   await expect(page.getByText("Pendaftaran berhasil diajukan.")).toBeVisible();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: /Ekspor CSV/ }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^pendaftaran-mtqh-pinrang-2027-\d{4}-\d{2}-\d{2}\.csv$/);
+  await expect(page.getByText(/entri sesuai filter diekspor sebagai CSV privat/)).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/phase-09/registration-export-1440.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: "artifacts/screenshots/phase-06/registration-submitted-390.png", fullPage: true });
+  await page.waitForTimeout(350);
+  await page.screenshot({ path: "artifacts/screenshots/phase-09/registration-export-390.png", fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 
   await page.setViewportSize({ width: 1440, height: 900 });

@@ -4,7 +4,7 @@
 Event: **MTQH XXXV Kabupaten Pinrang 2027** — rencana **Januari 2027**, tuan rumah **Kecamatan Tiroang, Kabupaten Pinrang**.  
 Versi dokumen: **1.0 | 15 November 2026**. Bahasa proyek: Indonesia. Zona waktu: `Asia/Makassar` (WITA/UTC+08:00).
 
-> **Status implementasi:** Fondasi UI, Auth/RBAC, profil akun, master data draft REG-101, pendaftaran peserta/regu REG-102, serta alur pengajuan dan pemeriksaan administratif telah dibangun. Endpoint Worker untuk verifikasi final sudah tersedia dan diuji lokal, tetapi UI tetap dikunci sampai secret IAM minimum, pengujian staging, dan deployment Worker disetujui. SPA tersedia pada kanal preview UAT sementara; belum merupakan produksi dan seluruh statistik/golongan contoh adalah simulasi.
+> **Status implementasi:** Fondasi UI, Auth/RBAC, profil akun, master data draft REG-101, pendaftaran peserta/regu REG-102, alur pemeriksaan administratif, serta ekspor CSV privat REG-104 telah dibangun. Endpoint Worker untuk verifikasi final sudah tersedia dan diuji lokal, tetapi UI tetap dikunci sampai secret IAM minimum, pengujian staging, dan deployment Worker disetujui. SPA tersedia pada kanal preview UAT sementara; belum merupakan produksi dan seluruh statistik/golongan contoh adalah simulasi.
 
 ## Menjalankan aplikasi
 
@@ -45,6 +45,8 @@ Akun emulator memakai domain `example.test` dan kata sandi sementara `123456`. S
 Pengujian rules mandiri: `npm run test:rules`. Pengujian alur login/profil dengan emulator aktif: `npm run test:e2e`.
 
 Master data tersedia pada `/app/pengaturan` untuk akun Super Admin dan Admin Event. Seed cabang/golongan adalah referensi draft, selalu nonaktif, dan tidak boleh dianggap sebagai keputusan resmi panitia.
+
+Halaman `/app/peserta` menyediakan ekspor CSV privat bagi Super Admin, Admin Event, dan Admin Kafilah. Ekspor hanya mencakup maksimal 50 entri yang sudah lolos scope Firestore dan filter aktif; file tidak memuat NIK, tanggal lahir, kontak, catatan privat, actor UID, atau audit log.
 
 Build produksi tersedia di `apps/web/dist`. Konfigurasi `firebase.json` hanya menargetkan Firebase Hosting klasik dan Firestore; deployment tidak dijalankan otomatis.
 

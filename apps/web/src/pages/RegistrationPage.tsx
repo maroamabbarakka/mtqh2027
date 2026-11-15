@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, CheckCircle2, ClipboardList, Eye, Plus, Search, Send, ShieldCheck, Users, WifiOff, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardList, Download, Eye, Plus, Search, Send, ShieldCheck, Users, WifiOff, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { Badge, Button } from "@/components/ui";
@@ -7,6 +7,7 @@ import { getFirebaseServices } from "@/config/firebase-services";
 import { useAuth } from "@/features/auth/AuthContext";
 import { loadMasterData } from "@/features/master-data/repository";
 import type { Branch, District, Division } from "@/features/master-data/types";
+import { buildRegistrationCsv, registrationExportFilename } from "@/features/registration/export";
 import { createDraftRegistration, loadRegistrations, transitionRegistration, type RegistrationTransition } from "@/features/registration/repository";
 import { registrationSchema, reviewReasonSchema, type RegistrationInput } from "@/features/registration/schemas";
 import type { Registration } from "@/features/registration/types";
@@ -21,6 +22,7 @@ export function RegistrationPage() {
   const eventId = assignment?.eventId ?? "mtqh-pinrang-2027";
   const lockedDistricts = useMemo(() => assignment?.role === "kafilah_admin" ? assignment.districtIds ?? [] : undefined, [assignment]);
   const canWrite = auth.hasPermission("participants:write") && assignment?.role !== "verifier";
+  const canExport = auth.assignments.some((item) => item.status === "active" && ["super_admin", "event_admin", "kafilah_admin"].includes(item.role));
   const isReviewer = auth.assignments.some((item) => item.status === "active" && ["super_admin", "event_admin", "verifier"].includes(item.role));
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -92,10 +94,21 @@ export function RegistrationPage() {
     if (!parsed.success) { setReviewError(parsed.error.issues[0]?.message ?? "Alasan tidak valid."); return; }
     setReviewError(null); await moveStatus(reviewTarget, nextStatus, parsed.data.reason);
   }
+  function exportCsv() {
+    if (!canExport || visible.length === 0) return;
+    const scopeLabel = lockedDistricts?.length ? `Kecamatan: ${lockedDistricts.map((id) => names.districts[id] ?? id).join(", ")}` : "Seluruh kecamatan dalam event";
+    const filterLabel = `Status: ${statusFilter === "all" ? "Semua" : statusLabels[statusFilter]}; Pencarian: ${search.trim() || "Tidak ada"}`;
+    const csv = buildRegistrationCsv({ eventId, registrations: visible, districtNames: names.districts, divisionNames: names.divisions, statusLabels, scopeLabel, filterLabel });
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url; link.download = registrationExportFilename(eventId); link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    setSuccess(`${visible.length} entri sesuai filter diekspor sebagai CSV privat.`);
+  }
 
   if (loading) return <main className="admin-page"><div className="registration-skeleton"><span/><span/><span/></div></main>;
   return <main className="admin-page registration-page">
-    <header className="admin-heading"><div><span>Administrasi privat • event scoped</span><h1>Peserta & Regu</h1><p>Kelola pendaftaran sesuai wilayah tugas tanpa menampilkan data pribadi ke publik.</p></div><div>{canWrite && <Button onClick={() => setOpen(true)}><Plus size={17}/> Pendaftaran baru</Button>}</div></header>
+    <header className="admin-heading"><div><span>Administrasi privat • event scoped</span><h1>Peserta & Regu</h1><p>Kelola pendaftaran sesuai wilayah tugas tanpa menampilkan data pribadi ke publik.</p></div><div className="registration-heading-actions">{canExport && <Button variant="secondary" onClick={exportCsv} disabled={visible.length === 0}><Download size={17}/> Ekspor CSV ({visible.length})</Button>}{canWrite && <Button onClick={() => setOpen(true)}><Plus size={17}/> Pendaftaran baru</Button>}</div></header>
     {!navigator.onLine && <div className="stale-banner"><WifiOff/><div><strong>Anda sedang offline</strong><span>Aksi simpan dinonaktifkan sampai koneksi pulih.</span></div></div>}
     {error && <div className="registration-alert error"><AlertTriangle/><span>{error}</span><button onClick={() => setError(null)} aria-label="Tutup"><X/></button></div>}
     {success && <div className="registration-alert success"><CheckCircle2/><span>{success}</span><button onClick={() => setSuccess(null)} aria-label="Tutup"><X/></button></div>}

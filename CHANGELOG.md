@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.8.0 — 16 November 2026
+
+### Ditambahkan
+
+- Ekspor CSV registrasi privat berdasarkan role, scope query, pencarian, dan filter status aktif.
+- Metadata event, scope, filter, jumlah data, serta timestamp WITA dalam file berlabel `DRAFT INTERNAL`.
+- Pengamanan formula injection, UTF-8 BOM, dan tiga unit test generator CSV.
+
+### Keamanan dan kuota
+
+- Ekspor tidak memuat kontak, catatan privat, actor UID, audit, NIK, atau tanggal lahir.
+- File dibuat dari maksimal 50 entri yang sudah dimuat sehingga tidak menambah operasi Firestore.
+
 ## 0.7.0 — 16 November 2026
 
 ### Ditambahkan

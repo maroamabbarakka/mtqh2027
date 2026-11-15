@@ -24,6 +24,7 @@
 - [x] Rules emulator pendaftaran menolak create lintas kecamatan dan write role yang tidak berhak (fase REG-102 lokal).
 - [x] Endpoint lokal verifikasi final memvalidasi role server-trusted, separation of duties, precondition, idempotensi, dan audit atomik.
 - [ ] Worker staging memiliki IAM minimum, secrets terrotasi, CORS final, pengujian token nyata, dan pengukuran CPU Free sebelum UI diaktifkan.
+- [x] Ekspor CSV registrasi dibatasi scope query/role, memuat filter dan timestamp WITA, serta tidak menyertakan kontak, PII sensitif, actor UID, atau audit.
 
 ## Mutu visual dan fungsi
 - [ ] Dashboard desktop cocok arahan mockup tanpa fitur e-scoring atau data 2025.

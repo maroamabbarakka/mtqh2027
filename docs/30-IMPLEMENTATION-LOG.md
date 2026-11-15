@@ -1,5 +1,21 @@
 # 30 — Implementation Log
 
+## Fase 09 — REG-104 Ekspor Registrasi Privat (16 November 2026)
+
+### Scope selesai
+
+- Ekspor CSV UTF-8 BOM untuk Super Admin, Admin Event, dan Admin Kafilah dari daftar yang sudah lolos query scope Firestore.
+- Ekspor mengikuti filter status/pencarian aktif dan dibatasi snapshot maksimal 50 entri untuk menjaga kuota Spark.
+- Metadata file mencantumkan event, timestamp WITA, scope, filter, jumlah entri, serta label `DRAFT INTERNAL`.
+- Kolom hanya memuat ID teknis, tipe, nama entri, kecamatan, golongan, dan status; kontak, catatan, actor UID, audit, NIK, dan tanggal lahir tidak diekspor.
+- Sel CSV dinetralkan terhadap formula injection dan kutip diproses sesuai format CSV.
+
+### Quality gate
+
+- Tiga unit test baru untuk field allowlist, BOM/metadata, formula injection, escaping, serta nama file WITA.
+- Playwright memverifikasi unduhan dan nama file; screenshot desktop/mobile disimpan di `artifacts/screenshots/phase-09/`.
+- Tidak ada read/write Firestore tambahan saat ekspor karena file dibuat dari snapshot daftar yang sudah dimuat.
+
 ## Fase 08 — Worker Verifikasi Final Registrasi (16 November 2026)
 
 ### Scope selesai
