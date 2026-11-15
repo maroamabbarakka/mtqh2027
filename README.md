@@ -4,7 +4,7 @@
 Event: **MTQH XXXV Kabupaten Pinrang 2027** — rencana **Januari 2027**, tuan rumah **Kecamatan Tiroang, Kabupaten Pinrang**.  
 Versi dokumen: **1.0 | 15 November 2026**. Bahasa proyek: Indonesia. Zona waktu: `Asia/Makassar` (WITA/UTC+08:00).
 
-> **Status implementasi:** Fondasi UI, Auth/RBAC, profil akun, master data draft REG-101, pendaftaran peserta/regu REG-102, serta alur pengajuan dan pemeriksaan administratif telah dibangun dan diuji secara lokal. Status verifikasi final tetap dikunci sampai Worker tepercaya tersedia. Aplikasi **belum di-deploy** dan belum terhubung ke data produksi; seluruh statistik dan golongan contoh adalah simulasi.
+> **Status implementasi:** Fondasi UI, Auth/RBAC, profil akun, master data draft REG-101, pendaftaran peserta/regu REG-102, serta alur pengajuan dan pemeriksaan administratif telah dibangun. Endpoint Worker untuk verifikasi final sudah tersedia dan diuji lokal, tetapi UI tetap dikunci sampai secret IAM minimum, pengujian staging, dan deployment Worker disetujui. SPA tersedia pada kanal preview UAT sementara; belum merupakan produksi dan seluruh statistik/golongan contoh adalah simulasi.
 
 ## Menjalankan aplikasi
 
@@ -47,6 +47,8 @@ Pengujian rules mandiri: `npm run test:rules`. Pengujian alur login/profil denga
 Master data tersedia pada `/app/pengaturan` untuk akun Super Admin dan Admin Event. Seed cabang/golongan adalah referensi draft, selalu nonaktif, dan tidak boleh dianggap sebagai keputusan resmi panitia.
 
 Build produksi tersedia di `apps/web/dist`. Konfigurasi `firebase.json` hanya menargetkan Firebase Hosting klasik dan Firestore; deployment tidak dijalankan otomatis.
+
+Worker lokal menggunakan `apps/worker/.dev.vars` yang tidak boleh masuk Git. Salin placeholder dari `.dev.vars.example`, gunakan service account khusus dengan IAM minimum, lalu jalankan `npm exec wrangler dev -w @mtqh/worker`. Endpoint `POST /v1/events/:eventId/registrations/:entryId/verify` tetap tidak dipanggil frontend sebelum deployment dan UAT keamanan selesai.
 
 ## Sasaran produk
 Platform tunggal yang mobile-first dan profesional untuk manajemen peserta 12 kecamatan, jadwal, input **hasil juara tanpa penilaian hakim**, klasemen poin/medali, peliputan berita dan foto oleh panitia, redaksi/mode moderasi, portal publik, embed untuk situs lain, API data publik, dan layar videotron. Role dan scope akses harus dibatasi secara ketat.

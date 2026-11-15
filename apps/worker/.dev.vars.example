@@ -1,3 +1,4 @@
 # Placeholder lokal saja. Jangan commit nilai asli.
+# FIREBASE_PROJECT_ID dan ALLOWED_ORIGINS berasal dari wrangler.toml untuk local dev.
 FIREBASE_CLIENT_EMAIL=service-account-placeholder@example.invalid
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nPLACEHOLDER\n-----END PRIVATE KEY-----\n"

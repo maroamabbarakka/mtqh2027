@@ -26,6 +26,14 @@
 4. Deploy Worker dan tes GET API publik cached, POST sign auth, approve, publish.
 5. Monitor CPU Worker (limit Free 10ms), request limit; bila gagal jangan minta upgrade, optimasi/reduce scope.
 
+### Gate endpoint verifikasi registrasi
+
+1. Gunakan service account khusus; berikan hanya izin Firestore yang dibutuhkan dan jangan memakai akun owner/editor umum.
+2. Simpan `FIREBASE_CLIENT_EMAIL` dan `FIREBASE_PRIVATE_KEY` sebagai Cloudflare Worker secrets. `FIREBASE_PROJECT_ID` dan `ALLOWED_ORIGINS` adalah konfigurasi non-secret di `wrangler.toml` per environment.
+3. Jalankan Worker unit/integration tests, uji token palsu/kedaluwarsa, role dicabut, reviewer berbeda, replay, dan konflik `updateTime`.
+4. Deploy ke staging/preview Worker lebih dahulu dan ukur CPU/subrequest. Satu verifikasi normal memakai 4 subrequest setelah access token tersedia (role, audit replay, registration, commit); refresh token menambah 1 subrequest.
+5. Aktifkan frontend hanya setelah URL Worker, CORS, IAM, rotasi key, rollback, dan audit produksi ditinjau. Tanpa semua prasyarat, feature flag tetap off.
+
 ## Contoh config Firebase Hosting klasik
 ```json
 {

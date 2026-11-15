@@ -47,6 +47,21 @@ HTTP 400 bad request, 401 unauthenticated, 403 forbidden, 404 not found/no publi
 ## Private Worker operations
 `POST /v1/media/sign`, `POST /v1/media/register`, `POST /v1/results/:divisionId/approve`, `POST /v1/results/:divisionId/return`, `POST /v1/news/:articleId/publish`, `POST /v1/roles/assign`; wajib Bearer Firebase JWT dan Zod validation. `Idempotency-Key` required pada approve/publish/register. Private `Cache-Control:no-store`.
 
+### Verifikasi final registrasi (diimplementasikan, belum diaktifkan di UI)
+
+`POST /v1/events/:eventId/registrations/:entryId/verify`
+
+```json
+{"idempotencyKey":"UUID_V4","note":"Berkas administrasi telah diperiksa lengkap."}
+```
+
+- Role server-trusted: `event_admin` atau `verifier` aktif pada event.
+- Actor wajib reviewer yang sebelumnya mengambil pemeriksaan dan berbeda dari pembuat entri.
+- Precondition: status `under_review`, eligibility `needs_manual_review`, serta `updateTime` belum berubah.
+- Efek atomik: registration menjadi `verified`/`verified_manual` dan satu `eventAudit` deterministik dibuat.
+- Replay dengan key, actor, action, dan resource yang sama mengembalikan sukses `replayed:true`; penggunaan ulang key untuk operasi lain ditolak 409.
+- Request maksimum 8 KiB, private `no-store`, origin browser harus masuk allowlist, dan bearer token tetap wajib.
+
 ## CORS/cache
 - Public: CORS `*` hanya read-only dan tanpa credential; cache TTL 30–60s; key normalize query; Vary origin jika origin-specific.
 - Private: CORS trusted origin, never reflect arbitrary origin with credentials. Bearer auth tetap perlu.

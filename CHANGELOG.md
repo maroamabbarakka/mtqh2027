@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.0 — 16 November 2026
+
+### Ditambahkan
+
+- Endpoint Worker verifikasi final registrasi dengan Firebase JWT dan otorisasi role server-trusted.
+- Firestore REST service-account OAuth, commit status+audit atomik, precondition versi dokumen, dan replay idempoten.
+- Tiga belas pengujian Worker termasuk separation of duties, reviewer ownership, role negatif, status ilegal, CORS, dan boundary HTTP.
+
+### Keamanan
+
+- Credential service account hanya dibaca dari Worker secret dan tidak masuk frontend atau repository.
+- UI verifikasi final tetap nonaktif sampai IAM minimum, staging, pengukuran CPU, dan deployment Worker disetujui.
+
 ## 0.6.0 — 16 November 2026
 
 ### Ditambahkan

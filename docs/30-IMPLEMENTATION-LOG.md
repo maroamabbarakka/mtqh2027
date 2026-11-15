@@ -1,5 +1,21 @@
 # 30 — Implementation Log
 
+## Fase 08 — Worker Verifikasi Final Registrasi (16 November 2026)
+
+### Scope selesai
+
+- Endpoint versioned `POST /v1/events/:eventId/registrations/:entryId/verify` dengan Firebase JWT, origin allowlist, batas body 8 KiB, dan schema Zod ketat.
+- Worker membaca `roleAssignments/{uid}` via Firestore REST dan hanya menerima `event_admin`/`verifier` aktif pada event.
+- Validasi status, eligibility, reviewer pemegang pemeriksaan, event, serta pemisahan pembuat dan pemverifikasi.
+- Commit atomik mengubah registration dan membuat `eventAudit`; precondition `updateTime` mencegah lost update dan audit ID deterministik mencegah duplikasi.
+- OAuth service-account memakai JWT RS256 dengan access token cache in-memory; credential hanya berasal dari Worker secret.
+
+### Quality gate dan kuota
+
+- Worker: 13 unit/integration tests meliputi sukses, HTTP boundary/CORS, replay, role salah, reviewer salah, self-verification, dan status ilegal.
+- Verifikasi normal memakai empat Firestore REST subrequest; refresh access token menambah satu permintaan OAuth. Tidak ada listener atau layanan Firebase berbayar.
+- UI tetap feature-off. Worker belum dideploy karena IAM minimum, secret, pengukuran CPU Free, token nyata staging, dan persetujuan operasional belum tersedia.
+
 ## Fase 07 — Hardening Kandidat Uji Coba (16 November 2026)
 
 ### Scope
