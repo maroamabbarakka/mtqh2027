@@ -1,5 +1,20 @@
 # 30 — Implementation Log
 
+## Fase 11 — Konfigurasi Award Slots Draft (16 November 2026)
+
+### Scope selesai
+
+- Golongan menyimpan maksimal enam `awardSlots` terurut berupa ID teknis stabil dan label, terpisah dari status `awardSlotsStatus=draft`.
+- Editor Master Data memakai format satu baris `id-teknis|Label`, mendukung konfigurasi kosong, memvalidasi format, batas, dan ID duplikat.
+- Create/update golongan menulis konfigurasi dan `eventAudit` dalam batch atomik; revision serta timestamp server tetap berlaku.
+- Rules hanya mengizinkan Super Admin/Admin Event, mempertahankan status draft, dan menolak perubahan role lain.
+
+### Quality gate dan batas
+
+- Unit test schema/parser, Rules test positif/negatif, serta E2E desktop/mobile ditambahkan.
+- Konfigurasi slot belum merupakan keputusan resmi dan belum mengaktifkan UI input hasil, poin, atau klasemen.
+- Tahap selanjutnya: repository pengajuan hasil dengan pemenang hanya dari registration `verified`, lalu UI hasil tanpa skor.
+
 ## Fase 10 — Fondasi RES-201 Hasil Lomba (16 November 2026)
 
 ### Scope selesai

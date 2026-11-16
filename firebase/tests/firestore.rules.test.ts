@@ -118,6 +118,14 @@ beforeEach(async () => {
         status: "draft",
         enabled: false,
         limitsStatus: "draft_awaiting_juknis",
+        awardSlots: [],
+        awardSlotsStatus: "draft",
+        revision: 1,
+        createdBy: "seed",
+        createdAt: new Date(),
+        updatedBy: "seed",
+        updatedAt: new Date(),
+        idempotencyKey: "seed-division",
       }),
       setDoc(doc(db, `events/${eventId}/participants/p-tiroang`), {
         districtId: "tiroang",
@@ -412,6 +420,26 @@ describe("Firestore RBAC dan isolasi data", () => {
       }),
     );
     await assertFails(deleteDoc(audit));
+  });
+
+  it("mengizinkan event admin mengatur slot penghargaan draft secara atomik", async () => {
+    const db = environment.authenticatedContext("event-admin").firestore();
+    const batch = writeBatch(db);
+    batch.update(doc(db, `events/${eventId}/divisions/contoh-tilawah-putra`), {
+      awardSlots: [{ id: "juara-1", label: "Juara I" }, { id: "juara-2", label: "Juara II" }],
+      revision: 2, updatedBy: "event-admin", updatedAt: serverTimestamp(), idempotencyKey: "award-slots-1",
+    });
+    batch.set(doc(collection(db, `events/${eventId}/eventAudit`)), {
+      actorUid: "event-admin", action: "master_division_updated", resourceType: "division", resourceId: "contoh-tilawah-putra",
+      summary: "Slot penghargaan draft diperbarui", createdAt: serverTimestamp(), idempotencyKey: "award-slots-1",
+    });
+    await assertSucceeds(batch.commit());
+    await assertFails(updateDoc(doc(db, `events/${eventId}/divisions/contoh-tilawah-putra`), {
+      awardSlots: [{ id: "Juara 1", label: "" }],
+      revision: 3, updatedBy: "event-admin", updatedAt: serverTimestamp(), idempotencyKey: "award-slots-invalid",
+    }));
+    const kafilah = environment.authenticatedContext("kafilah-tiroang").firestore();
+    await assertFails(updateDoc(doc(kafilah, `events/${eventId}/divisions/contoh-tilawah-putra`), { awardSlots: [] }));
   });
 
   it("mengizinkan draft peserta atomik dalam scope dan menolak lintas wilayah", async () => {

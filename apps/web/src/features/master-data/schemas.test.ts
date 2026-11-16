@@ -34,6 +34,7 @@ describe("schema master data", () => {
         name: "Contoh Putra",
         gender: "putra",
         teamMode: "individual",
+        awardSlotsText: "juara-1|Juara I\njuara-2|Juara II",
       }).success,
     ).toBe(true);
     expect(
@@ -43,7 +44,14 @@ describe("schema master data", () => {
         name: "Contoh",
         gender: "bebas",
         teamMode: "solo",
+        awardSlotsText: "",
       }).success,
     ).toBe(false);
+  });
+  it("memvalidasi format dan keunikan slot penghargaan draft", () => {
+    const base = { id: "contoh-putra", branchId: "tilawah", name: "Contoh Putra", gender: "putra", teamMode: "individual" };
+    expect(divisionSchema.safeParse({ ...base, awardSlotsText: "utama|Juara Utama\nharapan|Harapan" }).success).toBe(true);
+    expect(divisionSchema.safeParse({ ...base, awardSlotsText: "utama|Satu\nutama|Dua" }).success).toBe(false);
+    expect(divisionSchema.safeParse({ ...base, awardSlotsText: "format salah" }).success).toBe(false);
   });
 });

@@ -43,10 +43,17 @@ test("event admin mengelola cabang draft dengan audit tanpa mempublikasikannya",
   await page.getByRole("button", { name: "Tambah sebagai draft" }).click();
   await expect(page.getByText("Cabang draft ditambahkan.")).toBeVisible();
   await expect(page.getByText("Cabang Simulasi E2E")).toBeVisible();
+  await page.getByRole("tab", { name: "Golongan" }).click();
+  await page.getByRole("button", { name: "Edit Contoh Golongan Tilawah Putra" }).click();
+  await page.getByLabel("Slot penghargaan draft").fill("juara-1|Juara I\njuara-2|Juara II\njuara-3|Juara III");
+  await page.getByRole("button", { name: "Simpan revisi" }).click();
+  await expect(page.getByText("Golongan draft diperbarui.")).toBeVisible();
+  await expect(page.getByText("3 slot penghargaan draft")).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/phase-11/award-slots-1440.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(350);
   await page.screenshot({
-    path: "artifacts/screenshots/phase-04/master-data-390-viewport.png",
+    path: "artifacts/screenshots/phase-11/award-slots-390-viewport.png",
   });
   await page.screenshot({
     path: "artifacts/screenshots/phase-04/master-data-390.png",

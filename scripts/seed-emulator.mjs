@@ -246,6 +246,8 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
         status: "draft",
         enabled: false,
         limitsStatus: "draft_awaiting_juknis",
+        awardSlots: [],
+        awardSlotsStatus: "draft",
         revision: 1,
         createdBy: "emulator-seed",
         createdAt: new Date(),

@@ -19,6 +19,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import {
   branchSchema,
   divisionSchema,
+  formatAwardSlots,
   type BranchInput,
   type DivisionInput,
 } from "@/features/master-data/schemas";
@@ -49,6 +50,7 @@ const divisionDefaults: DivisionInput = {
   name: "",
   gender: "belum-ditetapkan",
   teamMode: "individual",
+  awardSlotsText: "",
 };
 
 export function MasterDataPage() {
@@ -181,6 +183,7 @@ export function MasterDataPage() {
       name: item.name,
       gender: item.gender as DivisionInput["gender"],
       teamMode: item.teamMode,
+      awardSlotsText: formatAwardSlots(item.awardSlots ?? []),
     });
   }
   const filter = (value: string) =>
@@ -466,6 +469,7 @@ export function MasterDataPage() {
                       {item.teamMode === "team" ? "Regu" : "Individu"} · revisi{" "}
                       {item.revision}
                     </small>
+                    <small>{item.awardSlots?.length ?? 0} slot penghargaan draft</small>
                   </div>
                   <Badge tone="warning">JUKNIS DRAFT</Badge>
                   <button
@@ -539,6 +543,10 @@ export function MasterDataPage() {
                 <option value="team">Regu</option>
               </select>
             </FormField>
+            <FormField label="Slot penghargaan draft" error={divisionForm.formState.errors.awardSlotsText?.message}>
+              <textarea {...divisionForm.register("awardSlotsText")} rows={5} placeholder={"juara-1|Juara I\njuara-2|Juara II"} />
+            </FormField>
+            <div className="safe-master-note"><AlertTriangle/><span>Satu baris per slot dengan format <code>id-teknis|Label</code>. Kosongkan bila susunan penghargaan belum ditetapkan.</span></div>
             <Button
               type="submit"
               disabled={

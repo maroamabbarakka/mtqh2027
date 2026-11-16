@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.0 — 16 November 2026
+
+### Ditambahkan
+
+- Konfigurasi maksimal enam slot penghargaan draft per golongan dengan ID teknis stabil dan label yang dapat dikoreksi.
+- Editor Master Data, parser/formatter, audit atomik, Rules role-admin, unit test, Rules test, dan E2E responsif.
+
+### Keamanan produk
+
+- Slot baru selalu `draft`, tidak mengaktifkan hasil resmi, bobot poin, maupun klasemen.
+- Admin kafilah dan role non-admin ditolak mengubah konfigurasi slot.
+
 ## 0.9.0 — 16 November 2026
 
 ### Ditambahkan

@@ -18,6 +18,27 @@ service cloud.firestore {
         eventAccess(eventId).branchIds.hasAny([branchId]);
     }
     function masterAdmin(eventId) { return hasRole(eventId, ['super_admin','event_admin']); }
+    function validAwardSlot(slot) {
+      return slot is map
+        && slot.keys().hasOnly(['id', 'label'])
+        && slot.id is string
+        && slot.id.size() >= 3
+        && slot.id.size() <= 60
+        && slot.id.matches('^[a-z0-9]+(-[a-z0-9]+)*$')
+        && slot.label is string
+        && slot.label.size() >= 1
+        && slot.label.size() <= 60;
+    }
+    function validAwardSlots(slots) {
+      return slots is list
+        && slots.size() <= 6
+        && (slots.size() < 1 || validAwardSlot(slots[0]))
+        && (slots.size() < 2 || validAwardSlot(slots[1]))
+        && (slots.size() < 3 || validAwardSlot(slots[2]))
+        && (slots.size() < 4 || validAwardSlot(slots[3]))
+        && (slots.size() < 5 || validAwardSlot(slots[4]))
+        && (slots.size() < 6 || validAwardSlot(slots[5]));
+    }
 
     match /publicEvents/{eventId}/{document=**} {
       allow read: if true;
@@ -101,13 +122,15 @@ service cloud.firestore {
       match /divisions/{divisionId} {
         allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
         allow create: if masterAdmin(eventId)
-          && request.resource.data.keys().hasOnly(['id','eventId','branchId','name','gender','teamMode','status','enabled','limitsStatus','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.keys().hasOnly(['id','eventId','branchId','name','gender','teamMode','awardSlots','awardSlotsStatus','status','enabled','limitsStatus','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
           && request.resource.data.id == divisionId
           && request.resource.data.eventId == eventId
           && exists(/databases/$(database)/documents/events/$(eventId)/branches/$(request.resource.data.branchId))
           && request.resource.data.status == 'draft'
           && request.resource.data.enabled == false
           && request.resource.data.limitsStatus == 'draft_awaiting_juknis'
+          && validAwardSlots(request.resource.data.awardSlots)
+          && request.resource.data.awardSlotsStatus == 'draft'
           && request.resource.data.revision == 1
           && request.resource.data.createdBy == request.auth.uid
           && request.resource.data.updatedBy == request.auth.uid
@@ -115,13 +138,15 @@ service cloud.firestore {
           && request.resource.data.updatedAt == request.time;
         allow update: if masterAdmin(eventId)
           && resource.data.status == 'draft'
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['branchId','name','gender','teamMode','revision','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['branchId','name','gender','teamMode','awardSlots','revision','updatedBy','updatedAt','idempotencyKey'])
           && exists(/databases/$(database)/documents/events/$(eventId)/branches/$(request.resource.data.branchId))
           && request.resource.data.id == resource.data.id
           && request.resource.data.eventId == resource.data.eventId
           && request.resource.data.status == resource.data.status
           && request.resource.data.enabled == resource.data.enabled
           && request.resource.data.limitsStatus == resource.data.limitsStatus
+          && validAwardSlots(request.resource.data.awardSlots)
+          && request.resource.data.awardSlotsStatus == resource.data.awardSlotsStatus
           && request.resource.data.revision == resource.data.revision + 1
           && request.resource.data.updatedBy == request.auth.uid
           && request.resource.data.updatedAt == request.time;

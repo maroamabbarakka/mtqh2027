@@ -35,6 +35,8 @@ export type Division = {
   status: "draft";
   enabled: boolean;
   limitsStatus: "draft_awaiting_juknis";
+  awardSlots: Array<{ id: string; label: string }>;
+  awardSlotsStatus: "draft";
   revision: number;
   updatedAt?: Timestamp;
 };

@@ -7,7 +7,7 @@ import {
   writeBatch,
   type Firestore,
 } from "firebase/firestore";
-import type { BranchInput, DivisionInput } from "./schemas";
+import { parseAwardSlots, type BranchInput, type DivisionInput } from "./schemas";
 import type { Branch, District, Division, EventConfiguration } from "./types";
 
 export async function loadMasterData(firestore: Firestore, eventId: string) {
@@ -82,7 +82,8 @@ export async function createDraftDivision(
   const audit = doc(collection(firestore, "events", eventId, "eventAudit"));
   const idempotencyKey = crypto.randomUUID();
   batch.set(target, {
-    ...input,
+    id: input.id, branchId: input.branchId, name: input.name, gender: input.gender, teamMode: input.teamMode,
+    awardSlots: parseAwardSlots(input.awardSlotsText), awardSlotsStatus: "draft",
     eventId,
     status: "draft",
     enabled: false,
@@ -154,6 +155,7 @@ export async function updateDraftDivision(
     name: input.name,
     gender: input.gender,
     teamMode: input.teamMode,
+    awardSlots: parseAwardSlots(input.awardSlotsText),
     revision: revision + 1,
     updatedBy: uid,
     updatedAt: serverTimestamp(),
