@@ -2,6 +2,8 @@ import { verifyFirebaseToken, type VerifiedFirebaseToken } from './auth/verify-f
 import { createFirestoreGateway, type FirestoreGateway } from './firestore/rest'
 import { verifyRegistration, VerificationError } from './registration/verify'
 import { finalVerificationSchema, privilegedEnvelopeSchema } from './schemas'
+import { resultTransitionSchema } from './schemas'
+import { transitionResult } from './results/workflow'
 
 export type Env={FIREBASE_PROJECT_ID:string;FIREBASE_CLIENT_EMAIL:string;FIREBASE_PRIVATE_KEY:string;ALLOWED_ORIGINS:string}
 type Dependencies={
@@ -61,6 +63,20 @@ export function createWorker(overrides:Partial<Dependencies>={}){
         const body=finalVerificationSchema.safeParse(await parseJson(request))
         if(!body.success)return json({success:false,error:{code:'invalid_payload',issues:body.error.issues.map((issue)=>({path:issue.path.join('.'),code:issue.code}))}},400,responseHeaders)
         const result=await verifyRegistration({gateway:dependencies.createGateway(env),eventId,entryId,uid:token.sub,...body.data})
+        return json({success:true,data:result,meta:{schemaVersion:'v1'}},200,responseHeaders)
+      }catch(error){return errorResponse(error,responseHeaders)}
+    }
+    const resultMatch=url.pathname.match(/^\/v1\/events\/([^/]+)\/results\/([^/]+)\/transition$/)
+    if(request.method==='POST'&&resultMatch){
+      if(!checkOrigin(request,env))return json({success:false,error:{code:'origin_denied'}},403,responseHeaders)
+      if(!request.headers.get('content-type')?.toLowerCase().startsWith('application/json'))return json({success:false,error:{code:'unsupported_media_type'}},415,responseHeaders)
+      const eventId=resultMatch[1]??'';const resultId=resultMatch[2]??''
+      if(!eventPattern.test(eventId)||!entryPattern.test(resultId))return json({success:false,error:{code:'invalid_path'}},400,responseHeaders)
+      try{
+        const token=await dependencies.verifyToken(request,env.FIREBASE_PROJECT_ID)
+        const body=resultTransitionSchema.safeParse(await parseJson(request))
+        if(!body.success)return json({success:false,error:{code:'invalid_payload',issues:body.error.issues.map((issue)=>({path:issue.path.join('.'),code:issue.code}))}},400,responseHeaders)
+        const result=await transitionResult({gateway:dependencies.createGateway(env),eventId,resultId,uid:token.sub,...body.data})
         return json({success:true,data:result,meta:{schemaVersion:'v1'}},200,responseHeaders)
       }catch(error){return errorResponse(error,responseHeaders)}
     }

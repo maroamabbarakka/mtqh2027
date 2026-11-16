@@ -1,6 +1,6 @@
 import { importPKCS8, SignJWT } from 'jose'
 
-type FirestoreValue =
+export type FirestoreValue =
   | { nullValue: null }
   | { booleanValue: boolean }
   | { integerValue: string }
@@ -52,6 +52,21 @@ function decodeDocument(document: FirestoreDocument) {
 
 export function stringValue(value: string): FirestoreValue {
   return { stringValue: value }
+}
+
+export function integerValue(value: number): FirestoreValue {
+  return { integerValue: String(value) }
+}
+
+export function valueOf(value: unknown): FirestoreValue {
+  if (value === null) return { nullValue: null }
+  if (typeof value === 'string') return { stringValue: value }
+  if (typeof value === 'boolean') return { booleanValue: value }
+  if (typeof value === 'number' && Number.isInteger(value)) return integerValue(value)
+  if (typeof value === 'number') return { doubleValue: value }
+  if (Array.isArray(value)) return { arrayValue: { values: value.map(valueOf) } }
+  if (typeof value === 'object') return { mapValue: { fields: Object.fromEntries(Object.entries(value).map(([key, item]) => [key, valueOf(item)])) } }
+  throw new Error('unsupported_firestore_value')
 }
 
 async function requestAccessToken(env: ServiceAccountEnv, fetchImpl: typeof fetch) {

@@ -49,4 +49,5 @@
 - [x] Admin Cabang hanya dapat membuat draft pada scope cabang tugasnya.
 - [x] Pemenang wajib registration `verified`, golongan cocok, slot valid, dan unik.
 - [x] Tidak ada input skor; field asing ditolak Rules.
-- [ ] Submit dan approval server-authoritative RES-202 belum diaktifkan.
+- [x] Submit dan approval RES-202 diimplementasikan melalui Worker dengan idempotensi dan separation of duties.
+- [ ] Secret/IAM Worker produksi dan UAT lintas akun nyata belum dikonfigurasi.

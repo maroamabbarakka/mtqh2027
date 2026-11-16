@@ -62,6 +62,21 @@ HTTP 400 bad request, 401 unauthenticated, 403 forbidden, 404 not found/no publi
 - Replay dengan key, actor, action, dan resource yang sama mengembalikan sukses `replayed:true`; penggunaan ulang key untuk operasi lain ditolak 409.
 - Request maksimum 8 KiB, private `no-store`, origin browser harus masuk allowlist, dan bearer token tetap wajib.
 
+### Transisi hasil lomba RES-202
+
+`POST /v1/events/:eventId/results/:resultId/transition`
+
+```json
+{"idempotencyKey":"UUID_V4","action":"submit|start_review|return|approve","reason":"Wajib untuk return"}
+```
+
+- `submit` hanya Admin Cabang pada scope tugas dan pembuat draft.
+- `start_review`, `return`, dan `approve` hanya Admin Event; penginput tidak boleh mereview hasilnya sendiri.
+- Pemenang, status `verified`, golongan, serta slot diperiksa ulang pada setiap transisi.
+- Approval membuat `officialResults/{divisionId}`, memperbarui submission, dan menulis audit dalam satu commit dengan precondition.
+- Replay idempotensi mengembalikan sukses; pemakaian key untuk aksi/resource lain ditolak `409`.
+- Endpoint tidak menerima skor dan belum membangun klasemen atau snapshot publik.
+
 ## CORS/cache
 - Public: CORS `*` hanya read-only dan tanpa credential; cache TTL 30–60s; key normalize query; Vary origin jika origin-specific.
 - Private: CORS trusted origin, never reflect arbitrary origin with credentials. Bearer auth tetap perlu.

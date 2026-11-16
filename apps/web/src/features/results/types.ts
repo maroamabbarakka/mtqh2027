@@ -12,7 +12,7 @@ export type ResultSubmissionInput = {
   notes: string;
 };
 
-export type ResultSubmissionStatus = "draft" | "submitted" | "needs_revision" | "approved" | "superseded";
+export type ResultSubmissionStatus = "draft" | "submitted" | "under_review" | "needs_revision" | "approved" | "superseded";
 
 export type ResultSubmission = ResultSubmissionInput & {
   id: string;
@@ -20,4 +20,5 @@ export type ResultSubmission = ResultSubmissionInput & {
   status: ResultSubmissionStatus;
   revision: number;
   createdBy: string;
+  reviewedBy?: string;
 };

@@ -1,3 +1,4 @@
 import { describe,expect,it } from 'vitest'
-import { privilegedEnvelopeSchema } from './schemas'
+import { privilegedEnvelopeSchema, resultTransitionSchema } from './schemas'
 describe('privileged envelope',()=>{it('menerima request idempoten yang valid',()=>{expect(privilegedEnvelopeSchema.safeParse({eventId:'mtqh-pinrang-2027',idempotencyKey:'550e8400-e29b-41d4-a716-446655440000',payload:{status:'submitted'}}).success).toBe(true)});it('menolak field asing dan idempotency key palsu',()=>{expect(privilegedEnvelopeSchema.safeParse({eventId:'../admin',idempotencyKey:'ulang',payload:{},role:'super_admin'}).success).toBe(false)})})
+describe('result transition',()=>{const key='550e8400-e29b-41d4-a716-446655440000';it('menerima approval tanpa skor',()=>expect(resultTransitionSchema.safeParse({idempotencyKey:key,action:'approve'}).success).toBe(true));it('mewajibkan alasan return',()=>expect(resultTransitionSchema.safeParse({idempotencyKey:key,action:'return',reason:'singkat'}).success).toBe(false));it('menolak field skor',()=>expect(resultTransitionSchema.safeParse({idempotencyKey:key,action:'approve',score:99}).success).toBe(false))})

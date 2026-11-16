@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.12.0 — 16 November 2026
+
+### Ditambahkan
+
+- State machine RES-202 pada Worker untuk submit, mulai review, minta revisi, dan pengesahan hasil.
+- Validasi ulang pemenang, scope, role terbaru, separation of duties, idempotensi, precondition, official result, dan audit atomik.
+- Tombol transisi pada UI Hasil Lomba melalui endpoint Worker yang dapat dikonfigurasi.
+
+### Batas aman
+
+- Pengesahan belum menghitung klasemen atau menerbitkan snapshot publik.
+- Worker produksi belum dideploy karena secret dan IAM nyata harus dikonfigurasi pengguna secara aman.
+
 ## 0.11.0 — 16 November 2026
 
 ### Ditambahkan

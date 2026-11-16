@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Medal, Plus, ShieldCheck, WifiOff, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Eye, Medal, Plus, RotateCcw, Send, ShieldCheck, WifiOff, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Button } from "@/components/ui";
 import { getFirebaseServices } from "@/config/firebase-services";
@@ -7,6 +7,7 @@ import { loadMasterData } from "@/features/master-data/repository";
 import type { Division } from "@/features/master-data/types";
 import type { Registration } from "@/features/registration/types";
 import { createDraftResult, loadResultSubmissions, loadVerifiedEntries } from "@/features/results/repository";
+import { transitionResult, type ResultAction } from "@/features/results/api";
 import { resultSubmissionSchema } from "@/features/results/schemas";
 import type { ResultSubmission, ResultSubmissionInput } from "@/features/results/types";
 
@@ -19,6 +20,7 @@ export function ResultsPage() {
   const eventId = assignment?.eventId ?? "mtqh-pinrang-2027";
   const branchIds = useMemo(() => assignment?.role === "branch_admin" ? assignment.branchIds ?? [] : undefined, [assignment]);
   const canSubmit = auth.hasPermission("results:submit");
+  const canApprove = auth.hasPermission("results:approve");
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [submissions, setSubmissions] = useState<ResultSubmission[]>([]);
   const [entries, setEntries] = useState<Registration[]>([]);
@@ -28,6 +30,8 @@ export function ResultsPage() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<ResultSubmission | null>(null);
+  const [reviewReason, setReviewReason] = useState("");
   const selected = divisions.find((item) => item.id === form.divisionId);
   const availableDivisions = divisions.filter((item) => (!branchIds || branchIds.includes(item.branchId)) && item.awardSlots.length > 0);
 
@@ -67,15 +71,28 @@ export function ResultsPage() {
     finally { setSaving(false); }
   }
 
+  async function move(item: ResultSubmission, action: ResultAction, reason?: string) {
+    if (!services || saving) return;
+    setSaving(true); setError(null);
+    try {
+      await transitionResult(services.auth, eventId, item.id, action, reason);
+      const messages = { submit: "Draft diajukan dan dikunci untuk review.", start_review: "Review hasil dimulai.", return: "Hasil dikembalikan untuk revisi.", approve: "Hasil disahkan sebagai hasil resmi." };
+      setSuccess(messages[action]); setReviewTarget(null); setReviewReason(""); await reload();
+    } catch (cause) {
+      const code = cause instanceof Error ? cause.message : "unknown";
+      setError(code === "worker_not_configured" ? "Endpoint Worker belum dikonfigurasi. Transisi sensitif tetap dinonaktifkan." : `Transisi hasil ditolak (${code}).`);
+    } finally { setSaving(false); }
+  }
+
   if (loading) return <main className="admin-page"><div className="registration-skeleton"><span/><span/></div></main>;
   return <main className="admin-page registration-page">
-    <header className="admin-heading"><div><span>RES-201 • tanpa e-scoring</span><h1>Hasil Lomba</h1><p>Susun penerima penghargaan dari peserta terverifikasi berdasarkan berita acara.</p></div>{canSubmit && <div className="registration-heading-actions"><Button onClick={() => setOpen(true)}><Plus size={17}/> Buat draft hasil</Button></div>}</header>
+    <header className="admin-heading"><div><span>RES-202 • tanpa e-scoring</span><h1>Hasil Lomba</h1><p>Susun penerima penghargaan dari peserta terverifikasi berdasarkan berita acara.</p></div>{canSubmit && <div className="registration-heading-actions"><Button onClick={() => setOpen(true)}><Plus size={17}/> Buat draft hasil</Button></div>}</header>
     {!navigator.onLine && <div className="stale-banner"><WifiOff/><div><strong>Anda sedang offline</strong><span>Penyimpanan draft dinonaktifkan.</span></div></div>}
     {error && <div className="registration-alert error"><AlertTriangle/><span>{error}</span><button onClick={() => setError(null)} aria-label="Tutup"><X/></button></div>}
     {success && <div className="registration-alert success"><CheckCircle2/><span>{success}</span><button onClick={() => setSuccess(null)} aria-label="Tutup"><X/></button></div>}
-    <div className="safe-master-note"><ShieldCheck/> Tahap ini hanya menyimpan draft internal. Pengesahan, klasemen, dan publikasi belum aktif.</div>
+    <div className="safe-master-note"><ShieldCheck/> Transisi dan pengesahan hanya melalui Worker tepercaya. Klasemen serta publikasi tetap belum aktif.</div>
     <section className="surface registration-list results-list"><div className="registration-toolbar"><div><h2>Draft dalam scope</h2><small>Maksimal 50 dokumen untuk menjaga kuota Spark.</small></div></div>
-      {submissions.length === 0 ? <div className="master-empty"><Medal/><strong>Belum ada draft hasil</strong><span>{canSubmit ? "Buat draft setelah slot dan peserta terverifikasi tersedia." : "Data tampil sesuai scope akun."}</span></div> : <div className="table-scroll"><table><thead><tr><th>Golongan</th><th>Berita acara</th><th>Penerima</th><th>Status</th></tr></thead><tbody>{submissions.map((item) => <tr key={item.id}><td>{divisions.find((x) => x.id === item.divisionId)?.name ?? item.divisionId}</td><td>{item.sourceDocumentNumber}<small className="table-subtext">{item.establishedAt}</small></td><td>{item.winners.length} slot</td><td><Badge tone="warning">Draft</Badge></td></tr>)}</tbody></table></div>}
+      {submissions.length === 0 ? <div className="master-empty"><Medal/><strong>Belum ada draft hasil</strong><span>{canSubmit ? "Buat draft setelah slot dan peserta terverifikasi tersedia." : "Data tampil sesuai scope akun."}</span></div> : <div className="table-scroll"><table><thead><tr><th>Golongan</th><th>Berita acara</th><th>Penerima</th><th>Status</th><th>Tindakan</th></tr></thead><tbody>{submissions.map((item) => <tr key={item.id}><td>{divisions.find((x) => x.id === item.divisionId)?.name ?? item.divisionId}</td><td>{item.sourceDocumentNumber}<small className="table-subtext">{item.establishedAt}</small></td><td>{item.winners.length} slot</td><td><Badge tone={item.status === "approved" ? "success" : "warning"}>{item.status.replaceAll("_", " ")}</Badge></td><td><div className="row-actions">{canSubmit && item.status === "draft" && item.createdBy === auth.user?.uid && <Button variant="secondary" disabled={saving} onClick={() => void move(item, "submit")}><Send size={14}/> Ajukan</Button>}{canApprove && item.status === "submitted" && item.createdBy !== auth.user?.uid && <Button variant="secondary" disabled={saving} onClick={() => void move(item, "start_review")}><Eye size={14}/> Mulai review</Button>}{canApprove && item.status === "under_review" && item.reviewedBy === auth.user?.uid && <Button variant="secondary" onClick={() => setReviewTarget(item)}><ShieldCheck size={14}/> Putuskan</Button>}</div></td></tr>)}</tbody></table></div>}
     </section>
     {open && <div className="modal-backdrop"><section className="registration-modal" role="dialog" aria-modal="true" aria-labelledby="result-title"><header><div><span>Draft internal</span><h2 id="result-title">Susun hasil lomba</h2></div><button onClick={() => setOpen(false)} aria-label="Tutup"><X/></button></header><form className="registration-form" onSubmit={save}>
       <label>Golongan<select value={form.divisionId} onChange={(e) => void chooseDivision(e.target.value)}><option value="">Pilih golongan</option>{availableDivisions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
@@ -84,5 +101,6 @@ export function ResultsPage() {
       <div className="form-two"><label>Nomor berita acara<input value={form.sourceDocumentNumber} onChange={(e) => setForm({ ...form, sourceDocumentNumber: e.target.value })} placeholder="Nomor dokumen resmi"/></label><label>Tanggal penetapan<input type="date" value={form.establishedAt} onChange={(e) => setForm({ ...form, establishedAt: e.target.value })}/></label></div>
       <label>Catatan internal<textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}/></label><footer><Button type="button" variant="secondary" onClick={() => setOpen(false)}>Batal</Button><Button type="submit" disabled={saving || !navigator.onLine || entries.length === 0}>{saving ? "Menyimpan…" : "Simpan draft"}</Button></footer>
     </form></section></div>}
+    {reviewTarget && <div className="modal-backdrop"><section className="registration-modal review-modal" role="dialog" aria-modal="true" aria-labelledby="result-review-title"><header><div><span>Separation of duties aktif</span><h2 id="result-review-title">Keputusan hasil lomba</h2></div><button onClick={() => setReviewTarget(null)} aria-label="Tutup"><X/></button></header><div className="review-body"><div className="safe-master-note"><ShieldCheck/> Pengesahan membuat hasil resmi, tetapi belum menghitung klasemen sampai kebijakan poin disahkan.</div><label>Alasan revisi<textarea rows={4} value={reviewReason} onChange={(event) => setReviewReason(event.target.value)} placeholder="Wajib minimal 10 karakter jika dikembalikan."/></label><footer><Button variant="secondary" disabled={saving || reviewReason.trim().length < 10} onClick={() => void move(reviewTarget, "return", reviewReason)}><RotateCcw size={15}/> Minta revisi</Button><Button disabled={saving} onClick={() => void move(reviewTarget, "approve")}><ShieldCheck size={15}/> Sahkan hasil</Button></footer></div></section></div>}
   </main>;
 }

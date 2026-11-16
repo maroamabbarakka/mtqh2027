@@ -1,5 +1,20 @@
 # 30 — Implementation Log
 
+## Fase 13 — RES-202 State Machine Hasil Tepercaya (16 November 2026)
+
+### Scope selesai
+
+- Worker memverifikasi Firebase bearer token lalu membaca role assignment terkini sebelum setiap transisi hasil.
+- State machine mendukung `draft → submitted → under_review → needs_revision|approved` dengan separation of duties.
+- Pemenang diverifikasi ulang terhadap registration `verified`, golongan, slot konfigurasi, dan keunikan sebelum commit.
+- Approval menulis submission, `officialResults`, dan audit secara atomik memakai precondition serta idempotency key.
+- UI menyediakan tindakan sesuai permission dan menolak secara aman bila `VITE_WORKER_API_URL` belum dikonfigurasi.
+
+### Batas
+
+- Klasemen, policy poin, dan snapshot publik tetap nonaktif.
+- Deployment Worker membutuhkan secret service account dan review IAM di luar repository; tidak ada secret yang dicatat ke Git.
+
 ## Fase 12 — Draft Hasil Lomba Terverifikasi (16 November 2026)
 
 ### Scope selesai

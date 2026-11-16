@@ -26,9 +26,10 @@ test("admin cabang membuat draft hasil hanya dari peserta terverifikasi", async 
   await page.getByRole("button", { name: "Simpan draft" }).click();
   await expect(page.getByText("Draft hasil tersimpan dengan audit.")).toBeVisible();
   await expect(page.getByText("BA-DRAFT-E2E-001")).toBeVisible();
-  await page.screenshot({ path: "artifacts/screenshots/phase-12/results-draft-1440.png", fullPage: true });
+  await expect(page.getByRole("button", { name: "Ajukan" })).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/phase-13/results-transition-1440.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(250);
-  await page.screenshot({ path: "artifacts/screenshots/phase-12/results-draft-390-viewport.png" });
+  await page.screenshot({ path: "artifacts/screenshots/phase-13/results-transition-390-viewport.png" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 });
