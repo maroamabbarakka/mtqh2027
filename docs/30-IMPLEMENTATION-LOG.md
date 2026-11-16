@@ -1,5 +1,14 @@
 # 30 — Implementation Log
 
+## Fase 15 — Koreksi Kontras dan Occlusion Logo Hero (16 November 2026)
+
+- Logo hero desktop ditempatkan pada bidang ivory berkontras tinggi dengan border emas halus; seluruh detail hijau, teks kecil, dan identitas tahun dapat terbaca tanpa mengubah berkas logo sumber.
+- Rasio logo dipertahankan memakai `object-fit: contain`; tidak ada crop, masking, atau regenerasi identitas.
+- Badge “Informasi terverifikasi” dipindahkan dari overlay absolut menjadi elemen mandiri di bawah bidang logo sehingga tidak lagi menutupi nama maupun bagian bawah logo.
+- Efek halo dan bayangan dipertahankan pada intensitas rendah untuk memisahkan bidang logo dari hero teal tanpa membuatnya terlihat seperti tempelan kasar.
+- Pada mobile, bidang ivory dinonaktifkan dan logo tetap menjadi watermark dekoratif beropasitas rendah agar ruang baca serta CTA tidak terganggu.
+- Screenshot desktop 1440×900 dan mobile 390×844 lulus tanpa horizontal overflow.
+
 ## Fase 14 — Audit dan Refinement UI/UX (16 November 2026)
 
 ### Perbaikan visual
