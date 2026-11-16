@@ -8,4 +8,4 @@ FIREBASE_PROJECT_ID = "mtqhpinrang2027"
 ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:4173,https://mtqhpinrang2027.web.app,https://mtqhpinrang2027.firebaseapp.com"
 
 # Secret tidak boleh ditulis di file ini. Untuk pengembangan lokal gunakan `.dev.vars` yang diabaikan Git.
-# Produksi kelak menggunakan `wrangler secret put`, setelah IAM minimum dan review keamanan disetujui.
+# Produksi menggunakan `wrangler secret put`; nilai secret tidak boleh disalin kembali ke repository.

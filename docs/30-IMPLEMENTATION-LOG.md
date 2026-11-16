@@ -6,7 +6,11 @@
 - URL aktif: `https://mtqh-pinrang-api.lpplradiosbl.workers.dev`.
 - CORS mengizinkan origin development serta Firebase Hosting resmi; preflight produksi menghasilkan `204` dengan origin tepat.
 - CSP Firebase Hosting mengizinkan koneksi hanya ke URL Worker tersebut dan endpoint Firebase/Google yang diperlukan.
-- Secret service account belum dipasang sehingga operasi Firestore privileged masih fail-closed; frontend produksi belum dideploy ulang.
+- Service account khusus memperoleh IAM `Cloud Datastore User` pada proyek target; OAuth dan pembacaan Firestore REST terverifikasi tanpa mencetak token.
+- `FIREBASE_CLIENT_EMAIL` dan `FIREBASE_PRIVATE_KEY` dipasang sebagai Cloudflare secrets; file JSON tetap berada di luar repository.
+- Firebase Hosting, Firestore Rules, dan Firestore Indexes berhasil dideploy ke `mtqhpinrang2027`; CSP dan bundle frontend memakai URL Worker produksi.
+- Smoke test produksi nonmutasi memverifikasi health, CORS origin resmi, penolakan origin asing, dan penolakan request tanpa bearer token.
+- UAT bearer token nyata lintas-role, operasi tulis, rotasi key, serta pengukuran CPU Worker Free tetap menjadi gate rilis resmi.
 
 ## Fase 13 — RES-202 State Machine Hasil Tepercaya (16 November 2026)
 

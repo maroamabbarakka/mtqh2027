@@ -23,7 +23,8 @@
 - [x] Hosting mengirim CSP, anti-frame, nosniff, referrer policy, dan permissions policy untuk build uji coba.
 - [x] Rules emulator pendaftaran menolak create lintas kecamatan dan write role yang tidak berhak (fase REG-102 lokal).
 - [x] Endpoint lokal verifikasi final memvalidasi role server-trusted, separation of duties, precondition, idempotensi, dan audit atomik.
-- [ ] Worker staging memiliki IAM minimum, secrets terrotasi, CORS final, pengujian token nyata, dan pengukuran CPU Free sebelum UI diaktifkan.
+- [x] Worker produksi teknis memiliki service account khusus dengan IAM `Cloud Datastore User`, secret terenkripsi, CORS final, dan smoke test nonmutasi.
+- [ ] Rotasi key, pengujian token nyata lintas-role, dan pengukuran CPU Worker Free diselesaikan sebelum rilis resmi.
 - [x] Ekspor CSV registrasi dibatasi scope query/role, memuat filter dan timestamp WITA, serta tidak menyertakan kontak, PII sensitif, actor UID, atau audit.
 - [x] Slot penghargaan dapat dikonfigurasi sebagai draft oleh admin dengan audit atomik; konfigurasi tidak dianggap sah dan tidak memengaruhi klasemen.
 
@@ -50,4 +51,5 @@
 - [x] Pemenang wajib registration `verified`, golongan cocok, slot valid, dan unik.
 - [x] Tidak ada input skor; field asing ditolak Rules.
 - [x] Submit dan approval RES-202 diimplementasikan melalui Worker dengan idempotensi dan separation of duties.
-- [ ] Secret/IAM Worker produksi dan UAT lintas akun nyata belum dikonfigurasi.
+- [x] Secret/IAM Worker produksi dan CORS domain Hosting telah dikonfigurasi serta diuji fail-closed.
+- [ ] UAT lintas akun nyata dan operasi tulis idempoten belum ditandatangani pemilik produk.

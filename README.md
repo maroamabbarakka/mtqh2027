@@ -4,7 +4,7 @@
 Event: **MTQH XXXV Kabupaten Pinrang 2027** — rencana **Januari 2027**, tuan rumah **Kecamatan Tiroang, Kabupaten Pinrang**.  
 Versi dokumen: **1.0 | 15 November 2026**. Bahasa proyek: Indonesia. Zona waktu: `Asia/Makassar` (WITA/UTC+08:00).
 
-> **Status implementasi:** Fondasi UI, Auth/RBAC, profil akun, master data draft REG-101, pendaftaran peserta/regu REG-102, alur pemeriksaan administratif, serta ekspor CSV privat REG-104 telah dibangun. Endpoint Worker untuk verifikasi final sudah tersedia dan diuji lokal, tetapi UI tetap dikunci sampai secret IAM minimum, pengujian staging, dan deployment Worker disetujui. SPA tersedia pada kanal preview UAT sementara; belum merupakan produksi dan seluruh statistik/golongan contoh adalah simulasi.
+> **Status implementasi:** Fondasi UI, Auth/RBAC, profil akun, master data draft REG-101, pendaftaran peserta/regu REG-102, alur pemeriksaan administratif, ekspor CSV privat REG-104, dan alur hasil tepercaya RES-202 telah dibangun. Worker dan SPA tersedia pada kanal produksi teknis untuk UAT, dengan IAM serta secret server terpasang. Kanal ini **belum boleh diumumkan sebagai rilis resmi**: akun panitia nyata, keputusan lomba, privasi, token lintas-role, dan sign-off UAT belum selesai; statistik/golongan contoh tetap simulasi.
 
 ## Menjalankan aplikasi
 
@@ -50,7 +50,7 @@ Halaman `/app/peserta` menyediakan ekspor CSV privat bagi Super Admin, Admin Eve
 
 Build produksi tersedia di `apps/web/dist`. Konfigurasi `firebase.json` hanya menargetkan Firebase Hosting klasik dan Firestore; deployment tidak dijalankan otomatis.
 
-Worker lokal menggunakan `apps/worker/.dev.vars` yang tidak boleh masuk Git. Salin placeholder dari `.dev.vars.example`, gunakan service account khusus dengan IAM minimum, lalu jalankan `npm exec wrangler dev -w @mtqh/worker`. Endpoint `POST /v1/events/:eventId/registrations/:entryId/verify` tetap tidak dipanggil frontend sebelum deployment dan UAT keamanan selesai.
+Worker lokal menggunakan `apps/worker/.dev.vars` yang tidak boleh masuk Git. Salin placeholder dari `.dev.vars.example`, gunakan service account khusus dengan IAM minimum, lalu jalankan `npm exec wrangler dev -w @mtqh/worker`. Worker produksi aktif di `https://mtqh-pinrang-api.lpplradiosbl.workers.dev`; jalankan `npm run smoke:production` untuk pemeriksaan nonmutasi. Endpoint tulis hanya boleh diuji dengan akun Firebase Auth produksi dan scope yang sah.
 
 ## Sasaran produk
 Platform tunggal yang mobile-first dan profesional untuk manajemen peserta 12 kecamatan, jadwal, input **hasil juara tanpa penilaian hakim**, klasemen poin/medali, peliputan berita dan foto oleh panitia, redaksi/mode moderasi, portal publik, embed untuk situs lain, API data publik, dan layar videotron. Role dan scope akses harus dibatasi secara ketat.
