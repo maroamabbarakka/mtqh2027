@@ -6,6 +6,7 @@ import { AdminDashboard } from "@/pages/AdminDashboard";
 import { AccountPage } from "@/pages/AccountPage";
 import { MasterDataPage } from "@/pages/MasterDataPage";
 import { RegistrationPage } from "@/pages/RegistrationPage";
+import { ResultsPage } from "@/pages/ResultsPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 export default function AdminRoutes() {
@@ -22,16 +23,7 @@ export default function AdminRoutes() {
               <Route path="peserta" element={<RegistrationPage />} />
             </Route>
             <Route element={<ProtectedRoute permission="results:view" />}>
-              <Route
-                path="hasil"
-                element={
-                  <PlaceholderPage
-                    title="Hasil Lomba"
-                    description="Input hanya susunan juara dari berita acara resmi—tanpa komponen skor."
-                    admin
-                  />
-                }
-              />
+              <Route path="hasil" element={<ResultsPage />} />
             </Route>
             <Route
               path="jadwal"

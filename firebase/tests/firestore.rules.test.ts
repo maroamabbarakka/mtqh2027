@@ -118,7 +118,7 @@ beforeEach(async () => {
         status: "draft",
         enabled: false,
         limitsStatus: "draft_awaiting_juknis",
-        awardSlots: [],
+        awardSlots: [{ id: "juara-1", label: "Juara I" }],
         awardSlotsStatus: "draft",
         revision: 1,
         createdBy: "seed",
@@ -151,6 +151,12 @@ beforeEach(async () => {
         updatedBy: "kafilah-tiroang",
         updatedAt: new Date(),
         idempotencyKey: "seed-workflow",
+      }),
+      setDoc(doc(db, `events/${eventId}/registrations/verified-entry`), {
+        eventId, districtId: "tiroang", branchId: "tilawah", divisionId: "contoh-tilawah-putra",
+        entryType: "individual", displayName: "Peserta Terverifikasi", participantId: "p-tiroang", teamId: null,
+        status: "verified", eligibilityStatus: "needs_manual_review", createdBy: "seed", createdAt: new Date(),
+        updatedBy: "seed", updatedAt: new Date(), idempotencyKey: "verified-seed",
       }),
       setDoc(doc(db, `events/${eventId}/resultSubmissions/r-tilawah`), {
         branchId: "tilawah",
@@ -205,6 +211,31 @@ describe("Firestore RBAC dan isolasi data", () => {
         status: "submitted",
       }),
     );
+  });
+
+  it("mengizinkan draft hasil terverifikasi dan menolak peserta nonverified atau field skor", async () => {
+    const db = environment.authenticatedContext("branch-tilawah").firestore();
+    const batch = writeBatch(db);
+    const result = doc(db, `events/${eventId}/resultSubmissions/result-valid`);
+    const base = {
+      eventId, branchId: "tilawah", divisionId: "contoh-tilawah-putra",
+      winners: [{ awardId: "juara-1", entryId: "verified-entry" }], sourceDocumentNumber: "BA-DRAFT-001",
+      establishedAt: "2027-01-15", notes: "Simulasi internal", status: "draft", revision: 1,
+      createdBy: "branch-tilawah", createdAt: serverTimestamp(), updatedBy: "branch-tilawah",
+      updatedAt: serverTimestamp(), idempotencyKey: "result-key-1",
+    };
+    batch.set(result, base);
+    batch.set(doc(collection(db, `events/${eventId}/eventAudit`)), {
+      actorUid: "branch-tilawah", action: "result_draft_created", resourceType: "resultSubmission",
+      resourceId: "result-valid", summary: "Draft hasil dibuat", createdAt: serverTimestamp(), idempotencyKey: "result-key-1",
+    });
+    await assertSucceeds(batch.commit());
+    await assertFails(setDoc(doc(db, `events/${eventId}/resultSubmissions/result-unverified`), {
+      ...base, winners: [{ awardId: "juara-1", entryId: "workflow-entry" }], idempotencyKey: "result-key-2",
+    }));
+    await assertFails(setDoc(doc(db, `events/${eventId}/resultSubmissions/result-score`), {
+      ...base, score: 99, idempotencyKey: "result-key-3",
+    }));
   });
 
   it("menolak client menulis role assignment sendiri", async () => {

@@ -1,5 +1,19 @@
 # 30 — Implementation Log
 
+## Fase 12 — Draft Hasil Lomba Terverifikasi (16 November 2026)
+
+### Scope selesai
+
+- Admin Cabang dapat membuat draft hasil dari slot penghargaan konfigurabel dan pendaftaran berstatus `verified` dalam scope cabangnya.
+- Repository membatasi query 50 dokumen, menulis hasil dan `eventAudit` dalam batch atomik, serta memakai timestamp server dan idempotency key.
+- Firestore Rules memvalidasi schema allowlist, scope cabang, relasi golongan, slot, status pendaftaran, keunikan pemenang, dan menolak field skor.
+- Halaman menyediakan loading, empty, error, permission-aware, offline, dan success state dengan layout desktop/mobile.
+
+### Batas aman
+
+- Dokumen hanya berstatus `draft`; submit, approval, official result, klasemen, dan publikasi belum aktif.
+- Tahap selanjutnya adalah RES-202 melalui Worker tepercaya dengan verifikasi token, separation of duties, dan idempotensi.
+
 ## Fase 11 — Konfigurasi Award Slots Draft (16 November 2026)
 
 ### Scope selesai

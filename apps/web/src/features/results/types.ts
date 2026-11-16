@@ -13,3 +13,11 @@ export type ResultSubmissionInput = {
 };
 
 export type ResultSubmissionStatus = "draft" | "submitted" | "needs_revision" | "approved" | "superseded";
+
+export type ResultSubmission = ResultSubmissionInput & {
+  id: string;
+  eventId: string;
+  status: ResultSubmissionStatus;
+  revision: number;
+  createdBy: string;
+};

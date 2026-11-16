@@ -39,6 +39,42 @@ service cloud.firestore {
         && (slots.size() < 5 || validAwardSlot(slots[4]))
         && (slots.size() < 6 || validAwardSlot(slots[5]));
     }
+    function awardAllowed(eventId, divisionId, awardId) {
+      let slots = get(/databases/$(database)/documents/events/$(eventId)/divisions/$(divisionId)).data.awardSlots;
+      return (slots.size() > 0 && slots[0].id == awardId)
+        || (slots.size() > 1 && slots[1].id == awardId)
+        || (slots.size() > 2 && slots[2].id == awardId)
+        || (slots.size() > 3 && slots[3].id == awardId)
+        || (slots.size() > 4 && slots[4].id == awardId)
+        || (slots.size() > 5 && slots[5].id == awardId);
+    }
+    function validResultWinner(eventId, divisionId, winner) {
+      let registration = get(/databases/$(database)/documents/events/$(eventId)/registrations/$(winner.entryId));
+      return winner is map
+        && winner.keys().hasOnly(['awardId', 'entryId'])
+        && winner.awardId is string
+        && winner.entryId is string
+        && awardAllowed(eventId, divisionId, winner.awardId)
+        && registration.data.status == 'verified'
+        && registration.data.divisionId == divisionId;
+    }
+    function uniqueResultWinners(w) {
+      return (w.size() < 2 || (w[0].entryId != w[1].entryId && w[0].awardId != w[1].awardId))
+        && (w.size() < 3 || (w[0].entryId != w[2].entryId && w[1].entryId != w[2].entryId && w[0].awardId != w[2].awardId && w[1].awardId != w[2].awardId))
+        && (w.size() < 4 || (w[0].entryId != w[3].entryId && w[1].entryId != w[3].entryId && w[2].entryId != w[3].entryId && w[0].awardId != w[3].awardId && w[1].awardId != w[3].awardId && w[2].awardId != w[3].awardId))
+        && (w.size() < 5 || (w[0].entryId != w[4].entryId && w[1].entryId != w[4].entryId && w[2].entryId != w[4].entryId && w[3].entryId != w[4].entryId && w[0].awardId != w[4].awardId && w[1].awardId != w[4].awardId && w[2].awardId != w[4].awardId && w[3].awardId != w[4].awardId))
+        && (w.size() < 6 || (w[0].entryId != w[5].entryId && w[1].entryId != w[5].entryId && w[2].entryId != w[5].entryId && w[3].entryId != w[5].entryId && w[4].entryId != w[5].entryId && w[0].awardId != w[5].awardId && w[1].awardId != w[5].awardId && w[2].awardId != w[5].awardId && w[3].awardId != w[5].awardId && w[4].awardId != w[5].awardId));
+    }
+    function validResultWinners(eventId, divisionId, winners) {
+      return winners is list && winners.size() >= 1 && winners.size() <= 6
+        && validResultWinner(eventId, divisionId, winners[0])
+        && (winners.size() < 2 || validResultWinner(eventId, divisionId, winners[1]))
+        && (winners.size() < 3 || validResultWinner(eventId, divisionId, winners[2]))
+        && (winners.size() < 4 || validResultWinner(eventId, divisionId, winners[3]))
+        && (winners.size() < 5 || validResultWinner(eventId, divisionId, winners[4]))
+        && (winners.size() < 6 || validResultWinner(eventId, divisionId, winners[5]))
+        && uniqueResultWinners(winners);
+    }
 
     match /publicEvents/{eventId}/{document=**} {
       allow read: if true;
@@ -160,12 +196,15 @@ service cloud.firestore {
           || (hasRole(eventId, ['super_admin','event_admin','kafilah_admin'])
             && request.resource.data.action in ['registration_created','registration_submitted'])
           || (hasRole(eventId, ['super_admin','event_admin','verifier'])
-            && request.resource.data.action in ['registration_review_started','registration_revision_requested','registration_rejected']))
+            && request.resource.data.action in ['registration_review_started','registration_revision_requested','registration_rejected'])
+          || (hasRole(eventId, ['branch_admin'])
+            && request.resource.data.action == 'result_draft_created'))
           && request.resource.data.keys().hasOnly(['actorUid','action','resourceType','resourceId','summary','createdAt','idempotencyKey'])
           && request.resource.data.actorUid == request.auth.uid
           && ((request.resource.data.action.matches('master_branch_.*') && request.resource.data.resourceType == 'branch')
             || (request.resource.data.action.matches('master_division_.*') && request.resource.data.resourceType == 'division')
-            || (request.resource.data.action.matches('registration_.*') && request.resource.data.resourceType == 'registration'))
+            || (request.resource.data.action.matches('registration_.*') && request.resource.data.resourceType == 'registration')
+            || (request.resource.data.action.matches('result_.*') && request.resource.data.resourceType == 'resultSubmission'))
           && request.resource.data.summary is string
           && request.resource.data.summary.size() <= 160
           && request.resource.data.createdAt == request.time;
@@ -262,14 +301,31 @@ service cloud.firestore {
         allow read: if hasBranch(eventId, resource.data.branchId) || hasRole(eventId, ['super_admin','event_admin','oversight']);
         allow create: if hasBranch(eventId, request.resource.data.branchId)
           && hasRole(eventId, ['branch_admin'])
-          && request.resource.data.submittedBy == request.auth.uid
-          && request.resource.data.status in ['draft','submitted'];
+          && request.resource.data.keys().hasOnly(['eventId','branchId','divisionId','winners','sourceDocumentNumber','establishedAt','notes','status','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.eventId == eventId
+          && get(/databases/$(database)/documents/events/$(eventId)/divisions/$(request.resource.data.divisionId)).data.branchId == request.resource.data.branchId
+          && validResultWinners(eventId, request.resource.data.divisionId, request.resource.data.winners)
+          && request.resource.data.sourceDocumentNumber is string
+          && request.resource.data.sourceDocumentNumber.size() >= 3
+          && request.resource.data.sourceDocumentNumber.size() <= 80
+          && request.resource.data.establishedAt is string
+          && request.resource.data.notes is string
+          && request.resource.data.notes.size() <= 300
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && request.resource.data.revision == 1
+          && request.resource.data.status == 'draft';
         allow update: if hasBranch(eventId, resource.data.branchId)
           && hasRole(eventId, ['branch_admin'])
-          && request.resource.data.branchId == resource.data.branchId
-          && resource.data.submittedBy == request.auth.uid
-          && resource.data.status != 'approved'
-          && request.resource.data.status in ['draft','submitted'];
+          && resource.data.createdBy == request.auth.uid
+          && resource.data.status == 'draft'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['winners','sourceDocumentNumber','establishedAt','notes','revision','updatedBy','updatedAt','idempotencyKey'])
+          && validResultWinners(eventId, resource.data.divisionId, request.resource.data.winners)
+          && request.resource.data.revision == resource.data.revision + 1
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.updatedAt == request.time;
         allow delete: if false;
       }
 

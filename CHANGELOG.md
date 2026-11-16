@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.11.0 — 16 November 2026
+
+### Ditambahkan
+
+- Halaman Hasil Lomba untuk Admin Cabang menyusun draft penerima penghargaan tanpa skor.
+- Repository hasil, audit atomik, fixture peserta terverifikasi, Rules lintas-dokumen, E2E, dan screenshot responsif.
+
+### Keamanan produk
+
+- Pemenang wajib berasal dari pendaftaran `verified`, golongan yang sama, dan slot penghargaan terkonfigurasi.
+- Draft belum dapat disahkan, masuk klasemen, atau dipublikasikan; field asing seperti `score` ditolak Rules.
+
 ## 0.10.0 — 16 November 2026
 
 ### Ditambahkan

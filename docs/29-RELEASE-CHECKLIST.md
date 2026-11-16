@@ -43,3 +43,10 @@
 - [ ] Pemilik produk menerima UAT; catatan sign-off disimpan terpisah.
 
 **Peraturan rilis:** Jika butir identitas/hasil resmi, keamanan role, atau biaya Spark belum lulus, **jangan produksi**.
+
+## Gate RES-201 draft hasil
+
+- [x] Admin Cabang hanya dapat membuat draft pada scope cabang tugasnya.
+- [x] Pemenang wajib registration `verified`, golongan cocok, slot valid, dan unik.
+- [x] Tidak ada input skor; field asing ditolak Rules.
+- [ ] Submit dan approval server-authoritative RES-202 belum diaktifkan.

@@ -246,7 +246,11 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
         status: "draft",
         enabled: false,
         limitsStatus: "draft_awaiting_juknis",
-        awardSlots: [],
+        awardSlots: item.id === "contoh-tilawah-putra" ? [
+          { id: "juara-1", label: "Juara I (draft)" },
+          { id: "juara-2", label: "Juara II (draft)" },
+          { id: "juara-3", label: "Juara III (draft)" },
+        ] : [],
         awardSlotsStatus: "draft",
         revision: 1,
         createdBy: "emulator-seed",
@@ -257,6 +261,14 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
       }),
     ),
   );
+  await Promise.all(["001", "002", "003"].map((number, index) =>
+    setDoc(doc(firestore, `events/${eventId}/registrations`, `verified-tilawah-${number}`), {
+      eventId, districtId: districts[index].id, branchId: "tilawah", divisionId: "contoh-tilawah-putra",
+      entryType: "individual", displayName: `Peserta Contoh ${number}`, participantId: `participant-${number}`,
+      teamId: null, status: "verified", eligibilityStatus: "needs_manual_review", createdBy: "emulator-seed",
+      createdAt: new Date(), updatedBy: "emulator-seed", updatedAt: new Date(), idempotencyKey: `seed-verified-${number}`,
+    }),
+  ));
 });
 await testEnvironment.cleanup();
 console.log(

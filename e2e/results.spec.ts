@@ -1,0 +1,34 @@
+import { expect, test } from "@playwright/test";
+
+test("admin cabang membuat draft hasil hanya dari peserta terverifikasi", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email", { exact: true }).fill("cabang.tilawah@example.test");
+  await page.getByLabel("Kata sandi", { exact: true }).fill("123456");
+  await page.getByRole("button", { name: "Masuk dengan aman" }).click();
+  await expect(page).toHaveURL(/\/app\/keamanan$/);
+  await page.getByLabel("Kata sandi saat ini").fill("123456");
+  await page.getByLabel("Kata sandi baru", { exact: true }).fill("CabangTilawah-2027!");
+  await page.getByLabel("Konfirmasi kata sandi baru").fill("CabangTilawah-2027!");
+  await page.getByRole("button", { name: "Perbarui kata sandi" }).click();
+  await expect(page.getByText("Kata sandi berhasil diubah.")).toBeVisible();
+  await page.goto("/app/hasil");
+  await expect(page.getByRole("heading", { name: "Hasil Lomba" })).toBeVisible();
+  await page.getByRole("button", { name: "Buat draft hasil" }).click();
+  await page.getByLabel("Golongan").selectOption("contoh-tilawah-putra");
+  const recipients = page.getByLabel("Peserta/regu terverifikasi");
+  await expect(recipients).toHaveCount(3);
+  await recipients.nth(0).selectOption("verified-tilawah-001");
+  await recipients.nth(1).selectOption("verified-tilawah-002");
+  await recipients.nth(2).selectOption("verified-tilawah-003");
+  await page.getByLabel("Nomor berita acara").fill("BA-DRAFT-E2E-001");
+  await page.getByLabel("Tanggal penetapan").fill("2027-01-15");
+  await page.getByLabel("Catatan internal").fill("Simulasi internal; belum disahkan.");
+  await page.getByRole("button", { name: "Simpan draft" }).click();
+  await expect(page.getByText("Draft hasil tersimpan dengan audit.")).toBeVisible();
+  await expect(page.getByText("BA-DRAFT-E2E-001")).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/phase-12/results-draft-1440.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: "artifacts/screenshots/phase-12/results-draft-390-viewport.png" });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
+});
