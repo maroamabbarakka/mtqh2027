@@ -1,5 +1,13 @@
 # 30 — Implementation Log
 
+## Operasional — Bootstrap Worker Produksi (16 November 2026)
+
+- Worker `mtqh-pinrang-api` dibuat pada akun Cloudflare terotorisasi dan health endpoint berhasil diverifikasi.
+- URL aktif: `https://mtqh-pinrang-api.lpplradiosbl.workers.dev`.
+- CORS mengizinkan origin development serta Firebase Hosting resmi; preflight produksi menghasilkan `204` dengan origin tepat.
+- CSP Firebase Hosting mengizinkan koneksi hanya ke URL Worker tersebut dan endpoint Firebase/Google yang diperlukan.
+- Secret service account belum dipasang sehingga operasi Firestore privileged masih fail-closed; frontend produksi belum dideploy ulang.
+
 ## Fase 13 — RES-202 State Machine Hasil Tepercaya (16 November 2026)
 
 ### Scope selesai
