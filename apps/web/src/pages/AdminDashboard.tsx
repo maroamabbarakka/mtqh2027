@@ -10,13 +10,16 @@ import {
 } from "lucide-react";
 import BranchChart from "@/components/BranchChart";
 import { Badge, Button, SectionTitle, StatCard } from "@/components/ui";
+import { useAuth } from "@/features/auth/AuthContext";
 export function AdminDashboard() {
+  const auth = useAuth();
+  const displayName = auth.user?.displayName?.trim() || "Panitia";
   return (
     <div className="admin-page">
       <div className="admin-heading">
         <div>
           <span>Ahad, 15 November 2026 · WITA</span>
-          <h1>Selamat datang, Admin Panitia</h1>
+          <h1>Selamat datang, {displayName}</h1>
           <p>
             Pantau kesiapan acara melalui data yang terukur dan terverifikasi.
           </p>

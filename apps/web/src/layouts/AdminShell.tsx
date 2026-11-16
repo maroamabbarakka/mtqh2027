@@ -128,7 +128,7 @@ export function AdminShell() {
           >
             <Menu />
           </button>
-          <div>
+          <div className="workspace-title">
             <strong>MTQH XXXV Pinrang</strong>
             <span>Workspace Persiapan</span>
           </div>

@@ -1,5 +1,20 @@
 # 30 — Implementation Log
 
+## Fase 14 — Audit dan Refinement UI/UX (16 November 2026)
+
+### Perbaikan visual
+
+- Shell admin dipoles dengan topbar sticky berlapis blur, motif geometris halus pada sidebar, elevasi kartu konsisten, focus ring aksesibel, dan ritme grid yang lebih dekat dengan mockup premium civic-Islamic.
+- Dashboard menampilkan nama akun aktif, KPI dengan hierarchy yang lebih kuat, serta layout desktop 2/3–1/3 dan mobile dua kolom tanpa overflow horizontal.
+- Portal publik diperbaiki pada lebar mobile: menu tetap terlihat, strip informasi tidak memaksa lebar halaman, hero/CTA membungkus aman, dan bottom navigation menghormati safe-area perangkat.
+- Tabel lebar mempunyai scrollbar lokal serta petunjuk geser di mobile; hover, active, focus, dan reduced-motion tetap terjaga.
+
+### Validasi dan keputusan aset
+
+- Screenshot aktual diambil pada 1440×900 dan 390×844 untuk dashboard serta portal publik; seluruh viewport menghasilkan `scrollWidth === clientWidth`.
+- Tiga logo WebP lokal tetap digunakan sesuai fungsi identitasnya. Aset generatif baru tidak dibuat karena tidak diperlukan dan berisiko menambah identitas/ilustrasi yang belum disahkan panitia.
+- Mockup diterjemahkan sebagai arah estetika; data, lokasi, foto, menu penilaian, dan angka generatif pada mockup tidak disalin.
+
 ## Operasional — Bootstrap Worker Produksi (16 November 2026)
 
 - Worker `mtqh-pinrang-api` dibuat pada akun Cloudflare terotorisasi dan health endpoint berhasil diverifikasi.
