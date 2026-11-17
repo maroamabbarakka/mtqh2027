@@ -7,6 +7,7 @@ const safeCwd = process.env.MTQH_VITE_CWD ?? process.cwd()
 
 export default defineConfig({
   root: safeCwd,
+  publicDir: resolve(safeCwd, 'public'),
   envDir: resolve(safeCwd, '..', '..'),
   plugins: [react(), tailwindcss()],
   resolve: { preserveSymlinks: true, alias: { '@': resolve(safeCwd, 'src') } },

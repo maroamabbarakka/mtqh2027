@@ -9,6 +9,12 @@ import { getFirebaseApp } from './config/firebase'
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 1 } } })
 getFirebaseApp()
 
+if ('serviceWorker' in navigator && import.meta.env.MODE === 'production') {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+  })
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode><QueryClientProvider client={queryClient}><BrowserRouter><App /></BrowserRouter></QueryClientProvider></StrictMode>,
 )

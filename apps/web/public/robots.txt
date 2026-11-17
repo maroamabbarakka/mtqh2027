@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /login
+Disallow: /lupa-password
+Disallow: /akun-menunggu-aktivasi
+
+Sitemap: https://mtqhpinrang2027.web.app/sitemap.xml

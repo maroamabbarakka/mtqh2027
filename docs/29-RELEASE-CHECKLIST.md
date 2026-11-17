@@ -32,8 +32,9 @@
 
 ## Mutu visual dan fungsi
 - [ ] Dashboard desktop cocok arahan mockup tanpa fitur e-scoring atau data 2025.
-- [ ] Public website desktop dan mobile responsif di 360,390,768,1024,1440.
-- [ ] Footer/hero/data menggunakan informasi benar; semua dummy jelas `SIMULASI` atau sudah dibersihkan.
+- [x] Public website desktop dan mobile responsif di 360,390,768,1024,1440 (fase 21; pemeriksaan overflow dan screenshot otomatis).
+- [x] Footer dan hero memakai identitas yang tersedia, logo berbidang kontras, serta informasi belum resmi yang dinyatakan jelas; data simulasi tetap berlabel `SIMULASI`.
+- [x] Favicon, manifest PWA, ikon layar utama/maskable, halaman offline, robots, sitemap, dan cache aman portal publik tersedia.
 - [ ] Laporan dan ekspor bekerja sesuai izin.
 - [ ] Kontributor dapat kirim foto+berita; redaksi review; publik hanya published.
 - [ ] API/iframe dicoba di domain eksternal dan layar videotron 16:9.

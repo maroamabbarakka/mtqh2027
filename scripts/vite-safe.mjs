@@ -20,7 +20,7 @@ if (process.platform === 'win32' && repoRoot.includes('#') && isVite) {
   rmSync(tempRoot, { recursive: true, force: true })
   const tempWeb = join(tempRoot, 'apps', 'web')
   mkdirSync(tempWeb, { recursive: true })
-  for (const path of ['src', 'index.html', 'package.json', 'vite.config.ts', 'tsconfig.json', 'tsconfig.app.json', 'tsconfig.node.json']) cpSync(join(repoRoot, 'apps', 'web', path), join(tempWeb, path), { recursive: true })
+  for (const path of ['src', 'public', 'index.html', 'package.json', 'vite.config.ts', 'tsconfig.json', 'tsconfig.app.json', 'tsconfig.node.json']) cpSync(join(repoRoot, 'apps', 'web', path), join(tempWeb, path), { recursive: true })
   for (const logo of ['Logo MTQH XXXV Pinrang 2027.png', 'Lambang LPTQ Kabupaten Pinrang.png', 'Logo_Pinrang.png']) cpSync(join(repoRoot, logo), join(tempRoot, logo))
   for (const envFile of ['.env.local', '.env.emulator']) if (existsSync(join(repoRoot, envFile))) cpSync(join(repoRoot, envFile), join(tempRoot, envFile))
   symlinkSync(join(repoRoot, 'apps', 'web', 'node_modules'), join(tempWeb, 'node_modules'), 'junction')

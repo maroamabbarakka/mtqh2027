@@ -377,3 +377,13 @@
 - Tombol pemulihan keadaan gagal kini memiliki tindakan muat ulang yang nyata dan hanya ditampilkan jika tindakan tersedia.
 - Ikon kembali, susunan tautan, serta tampilan halaman masuk desktop/mobile dirapikan dan diuji tanpa overflow.
 - Bukti visual tersedia di `artifacts/screenshots/phase-20/`.
+
+## Fase 21 — PWA, navigasi publik, dan footer responsif (17 November 2026)
+
+- Identitas browser dilengkapi favicon, ikon layar utama, ikon maskable, manifest aplikasi, warna tema, serta metadata mesin pencari dan berbagi tautan.
+- Service worker hanya menyimpan kerangka portal dan aset publik satu domain. Halaman masuk/panitia, data jarak jauh, dan operasi tulis tidak disimpan; tidak ada sinkronisasi latar belakang sehingga tetap sesuai batas Firebase Spark.
+- Halaman offline bertema disediakan untuk navigasi publik ketika jaringan terputus.
+- Navigasi seluler memiliki backdrop, dukungan Escape, penguncian scroll, fokus yang terlihat, dan penanda halaman aktif yang benar.
+- Footer publik dirapikan menjadi area identitas, navigasi, akses panitia, status verifikasi, logo pendukung, dan tombol instalasi yang hanya muncul bila perangkat mendukung.
+- `robots.txt` dan sitemap hanya memuat rute publik; rute akun dan administrasi tidak dianjurkan untuk pengindeksan.
+- Tampilan diverifikasi tanpa overflow pada 360, 390, 768, 1024, dan 1440 piksel. Bukti visual tersedia di `artifacts/screenshots/phase-21/`.
