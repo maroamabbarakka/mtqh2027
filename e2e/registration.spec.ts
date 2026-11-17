@@ -28,10 +28,10 @@ test("admin kafilah mengajukan peserta dan verifikator meminta revisi", async ({
   await page.getByRole("button", { name: "Ajukan", exact: true }).click();
   await expect(page.getByText("Pendaftaran berhasil diajukan.")).toBeVisible();
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: /Ekspor CSV/ }).click();
+  await page.getByRole("button", { name: /Unduh data/ }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/^pendaftaran-mtqh-pinrang-2027-\d{4}-\d{2}-\d{2}\.csv$/);
-  await expect(page.getByText(/entri sesuai filter diekspor sebagai CSV privat/)).toBeVisible();
+  await expect(page.getByText(/entri berhasil diunduh sebagai berkas data/)).toBeVisible();
   await page.screenshot({ path: "artifacts/screenshots/phase-09/registration-export-1440.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(350);

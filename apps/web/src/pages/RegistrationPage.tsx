@@ -1,6 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   ClipboardList,
   Download,
@@ -27,6 +29,7 @@ import {
 import {
   createDraftRegistration,
   loadRegistrations,
+  type RegistrationCursor,
   transitionRegistration,
   type RegistrationTransition,
 } from "@/features/registration/repository";
@@ -100,6 +103,12 @@ export function RegistrationPage() {
   const [reviewTarget, setReviewTarget] = useState<Registration | null>(null);
   const [reviewReason, setReviewReason] = useState("");
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageCursors, setPageCursors] = useState<(RegistrationCursor | null)[]>([
+    null,
+  ]);
+  const [nextCursor, setNextCursor] = useState<RegistrationCursor | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const form = useForm<RegistrationInput>({
     resolver: zodResolver(registrationSchema),
     defaultValues: defaults,
@@ -110,19 +119,22 @@ export function RegistrationPage() {
     name: "divisionId",
   });
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (cursor: RegistrationCursor | null = null, targetPage = 1) => {
     if (!services) return;
     setLoading(true);
     setError(null);
     try {
       const [master, entries] = await Promise.all([
         loadMasterData(services.firestore, eventId),
-        loadRegistrations(services.firestore, eventId, lockedDistricts),
+        loadRegistrations(services.firestore, eventId, lockedDistricts, cursor),
       ]);
       setDistricts(master.districts);
       setBranches(master.branches);
       setDivisions(master.divisions);
-      setRegistrations(entries);
+      setRegistrations(entries.entries);
+      setNextCursor(entries.nextCursor);
+      setHasMore(entries.hasMore);
+      setPage(targetPage);
     } catch {
       setError(
         "Data pendaftaran belum dapat dimuat. Periksa koneksi lalu coba lagi.",
@@ -135,6 +147,28 @@ export function RegistrationPage() {
     const timer = window.setTimeout(() => void reload(), 0);
     return () => window.clearTimeout(timer);
   }, [reload]);
+
+  async function goToNextPage() {
+    if (!nextCursor || loading) return;
+    const targetPage = page + 1;
+    setPageCursors((current) => {
+      const updated = current.slice(0, targetPage - 1);
+      updated[targetPage - 1] = nextCursor;
+      return updated;
+    });
+    await reload(nextCursor, targetPage);
+  }
+
+  async function goToPreviousPage() {
+    if (page <= 1 || loading) return;
+    const targetPage = page - 1;
+    await reload(pageCursors[targetPage - 1] ?? null, targetPage);
+  }
+
+  async function returnToFirstPage() {
+    setPageCursors([null]);
+    await reload(null, 1);
+  }
   useEffect(() => {
     if (lockedDistricts?.length === 1)
       form.setValue("districtId", lockedDistricts[0]);
@@ -200,7 +234,7 @@ export function RegistrationPage() {
         "Pendaftaran tersimpan sebagai draft dan menunggu pemeriksaan manual.",
       );
       closeWizard();
-      await reload();
+      await returnToFirstPage();
     } catch {
       setError(
         "Pendaftaran belum berhasil disimpan. Periksa isian lalu coba lagi.",
@@ -235,7 +269,7 @@ export function RegistrationPage() {
       setSuccess(messages[nextStatus]);
       setReviewTarget(null);
       setReviewReason("");
-      await reload();
+      await reload(pageCursors[page - 1] ?? null, page);
     } catch {
       setError(
         "Perubahan status ditolak. Muat ulang data dan pastikan akun memiliki kewenangan.",
@@ -348,7 +382,7 @@ export function RegistrationPage() {
       <section className="registration-summary">
         <article>
           <Users />
-          <span>Total sesuai kewenangan</span>
+          <span>Entri pada halaman ini</span>
           <strong>{registrations.length}</strong>
         </article>
         <article>
@@ -370,7 +404,7 @@ export function RegistrationPage() {
         <div className="registration-toolbar">
           <div>
             <h2>Daftar pendaftaran</h2>
-            <small>Menampilkan maksimal 50 pendaftaran terbaru.</small>
+            <small>Halaman {page} • maksimal 25 pendaftaran per halaman.</small>
           </div>
           <label className="master-search">
             <Search />
@@ -509,6 +543,23 @@ export function RegistrationPage() {
             </table>
           </div>
         )}
+        <nav className="registration-pagination" aria-label="Navigasi halaman pendaftaran">
+          <Button
+            variant="secondary"
+            onClick={() => void goToPreviousPage()}
+            disabled={page === 1 || loading}
+          >
+            <ChevronLeft size={16} /> Sebelumnya
+          </Button>
+          <span>Halaman {page}</span>
+          <Button
+            variant="secondary"
+            onClick={() => void goToNextPage()}
+            disabled={!hasMore || loading}
+          >
+            Berikutnya <ChevronRight size={16} />
+          </Button>
+        </nav>
       </section>
       {open && (
         <div className="modal-backdrop" role="presentation">

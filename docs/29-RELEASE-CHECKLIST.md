@@ -26,6 +26,7 @@
 - [x] Worker produksi teknis memiliki service account khusus dengan IAM `Cloud Datastore User`, secret terenkripsi, CORS final, dan smoke test nonmutasi.
 - [ ] Rotasi key, pengujian token nyata lintas-role, dan pengukuran CPU Worker Free diselesaikan sebelum rilis resmi.
 - [x] Ekspor CSV registrasi dibatasi scope query/role, memuat filter dan timestamp WITA, serta tidak menyertakan kontak, PII sensitif, actor UID, atau audit.
+- [x] Daftar registrasi memakai pagination cursor 25 entri, tetap dibatasi scope akun, dan telah diuji dengan 138 entri lintas kecamatan.
 - [x] Slot penghargaan dapat dikonfigurasi sebagai draft oleh admin dengan audit atomik; konfigurasi tidak dianggap sah dan tidak memengaruhi klasemen.
 
 ## Mutu visual dan fungsi

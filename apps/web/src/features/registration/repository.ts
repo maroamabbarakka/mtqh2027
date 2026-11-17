@@ -1,18 +1,56 @@
-import { collection, doc, getDocs, limit, query, serverTimestamp, where, writeBatch, type Firestore } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  documentId,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  serverTimestamp,
+  startAfter,
+  where,
+  writeBatch,
+  type DocumentData,
+  type Firestore,
+  type QueryConstraint,
+  type QueryDocumentSnapshot,
+} from "firebase/firestore";
 import type { RegistrationInput } from "./schemas";
 import { parseMemberNames } from "./schemas";
 import type { Registration } from "./types";
 
 export type RegistrationTransition = "submitted" | "under_review" | "revision_required" | "rejected";
 
-export async function loadRegistrations(firestore: Firestore, eventId: string, districtIds?: string[]) {
+export const REGISTRATION_PAGE_SIZE = 25;
+export type RegistrationCursor = QueryDocumentSnapshot<DocumentData>;
+export type RegistrationPage = {
+  entries: Registration[];
+  nextCursor: RegistrationCursor | null;
+  hasMore: boolean;
+};
+
+export async function loadRegistrations(
+  firestore: Firestore,
+  eventId: string,
+  districtIds?: string[],
+  cursor?: RegistrationCursor | null,
+): Promise<RegistrationPage> {
   const base = collection(firestore, "events", eventId, "registrations");
-  const request = districtIds?.length === 1
-    ? query(base, where("districtId", "==", districtIds[0]), limit(50))
-    : query(base, limit(50));
+  const constraints: QueryConstraint[] = [];
+  if (districtIds?.length === 1)
+    constraints.push(where("districtId", "==", districtIds[0]));
+  constraints.push(orderBy("createdAt", "desc"), orderBy(documentId(), "asc"));
+  if (cursor) constraints.push(startAfter(cursor));
+  constraints.push(limit(REGISTRATION_PAGE_SIZE + 1));
+  const request = query(base, ...constraints);
   const snapshot = await getDocs(request);
-  return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Registration)
-    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+  const hasMore = snapshot.docs.length > REGISTRATION_PAGE_SIZE;
+  const pageDocs = snapshot.docs.slice(0, REGISTRATION_PAGE_SIZE);
+  return {
+    entries: pageDocs.map((item) => ({ id: item.id, ...item.data() }) as Registration),
+    nextCursor: hasMore ? (pageDocs.at(-1) ?? null) : null,
+    hasMore,
+  };
 }
 
 export async function createDraftRegistration(firestore: Firestore, eventId: string, uid: string, branchId: string, input: RegistrationInput) {

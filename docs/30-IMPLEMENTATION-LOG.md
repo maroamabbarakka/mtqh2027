@@ -320,3 +320,23 @@
 - Data simulasi tidak dideploy ke Firestore produksi.
 - Golongan, persyaratan, batas usia, kuota, jadwal, dan hasil belum resmi serta tetap nonaktif/draf.
 - Cabang Hadis belum dimasukkan sampai ada keputusan resmi panitia.
+## Fase 16 — Pagination pendaftaran hemat baca (17 November 2026)
+
+### Cakupan selesai
+
+- Daftar pendaftaran menggunakan cursor Firestore dengan 25 entri per halaman dan urutan stabil `createdAt` lalu ID dokumen.
+- Navigasi sebelumnya/berikutnya mempertahankan batas kewenangan kecamatan, menampilkan nomor halaman, serta kembali ke halaman pertama setelah entri baru dibuat.
+- Ekspor tetap memakai data halaman aktif dan metadata berkas menjelaskan batas 25 entri secara jujur.
+- Indeks komposit kecamatan dan waktu dibuat untuk query admin kafilah tanpa membuka akses lintas wilayah.
+- Layout tabel dan kontrol pagination tidak menimbulkan overflow halaman pada viewport 390 px.
+
+### Quality gate
+
+- Lint, TypeScript strict, 21 tes frontend, dan 23 tes Worker lulus.
+- E2E terhadap 138 pendaftaran emulator memverifikasi halaman pertama/kedua, masing-masing 25 baris, navigasi kembali, dan tampilan desktop/mobile.
+- Screenshot tersimpan di `artifacts/screenshots/phase-16/`.
+
+### Dampak kuota
+
+- Setiap perpindahan halaman membaca maksimal 26 dokumen; dokumen ke-26 hanya dipakai untuk mengetahui keberadaan halaman berikutnya.
+- Tidak ada realtime listener, count aggregation, atau pembacaan seluruh koleksi.

@@ -35,7 +35,7 @@ export function buildRegistrationCsv(options: ExportOptions) {
     ["ID Entri", "Tipe", "Nama entri", "Kecamatan ID", "Kecamatan", "Golongan ID", "Golongan", "Status"],
     ...options.registrations.map((item) => [item.id, item.entryType === "team" ? "Regu" : "Individual", item.displayName, item.districtId, options.districtNames[item.districtId] ?? item.districtId, item.divisionId, options.divisionNames[item.divisionId] ?? item.divisionId, options.statusLabels[item.status]]),
     [],
-    ["Catatan", "Daftar maksimal 50 entri sesuai kewenangan akun. Berkas ini tidak memuat NIK, tanggal lahir, kontak, catatan pribadi, atau riwayat pemeriksaan."],
+    ["Catatan", "Daftar maksimal 25 entri dari halaman aktif sesuai kewenangan akun. Berkas ini tidak memuat NIK, tanggal lahir, kontak, catatan pribadi, atau riwayat pemeriksaan."],
   ];
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}`;
 }
