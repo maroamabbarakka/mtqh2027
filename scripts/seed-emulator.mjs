@@ -13,6 +13,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { initializeTestEnvironment } from "@firebase/rules-unit-testing";
+import { demoAwardSlots, demoDivisions } from "./demo-catalog.mjs";
 
 if (!process.argv.includes("--confirm-emulator"))
   throw new Error(
@@ -170,7 +171,7 @@ const branches = [
     shortName: "KTIQ",
   },
 ];
-const divisions = [
+const legacyDivisions = [
   {
     id: "contoh-tilawah-putra",
     branchId: "tilawah",
@@ -193,12 +194,19 @@ const divisions = [
     teamMode: "team",
   },
 ];
+void legacyDivisions;
+const divisions = demoDivisions;
 await testEnvironment.withSecurityRulesDisabled(async (context) => {
   const firestore = context.firestore();
   for (const path of [
     `events/${eventId}/districts`,
     `events/${eventId}/branches`,
     `events/${eventId}/divisions`,
+    `events/${eventId}/participants`,
+    `events/${eventId}/teams`,
+    `events/${eventId}/registrations`,
+    `events/${eventId}/schedules`,
+    `events/${eventId}/resultSubmissions`,
   ]) {
     const snapshot = await getDocs(collection(firestore, path));
     await Promise.all(snapshot.docs.map((item) => deleteDoc(item.ref)));
@@ -246,11 +254,7 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
         status: "draft",
         enabled: false,
         limitsStatus: "draft_awaiting_juknis",
-        awardSlots: item.id === "contoh-tilawah-putra" ? [
-          { id: "juara-1", label: "Juara I (draft)" },
-          { id: "juara-2", label: "Juara II (draft)" },
-          { id: "juara-3", label: "Juara III (draft)" },
-        ] : [],
+        awardSlots: demoAwardSlots,
         awardSlotsStatus: "draft",
         revision: 1,
         createdBy: "emulator-seed",
@@ -261,16 +265,46 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
       }),
     ),
   );
-  await Promise.all(["001", "002", "003"].map((number, index) =>
-    setDoc(doc(firestore, `events/${eventId}/registrations`, `verified-tilawah-${number}`), {
-      eventId, districtId: districts[index].id, branchId: "tilawah", divisionId: "contoh-tilawah-putra",
-      entryType: "individual", displayName: `Peserta Contoh ${number}`, participantId: `participant-${number}`,
-      teamId: null, status: "verified", eligibilityStatus: "needs_manual_review", createdBy: "emulator-seed",
-      createdAt: new Date(), updatedBy: "emulator-seed", updatedAt: new Date(), idempotencyKey: `seed-verified-${number}`,
+  const registrations = divisions.flatMap((item, divisionIndex) => [1, 2, 3].map((rank) => {
+    const suffix = String(rank).padStart(3, "0");
+    const entryId = item.id === "contoh-tilawah-putra" ? `verified-tilawah-${suffix}` : `simulasi-${item.id}-${rank}`;
+    const entityId = `${item.teamMode === "team" ? "team" : "participant"}-${item.id}-${rank}`;
+    const district = districts[(divisionIndex * 3 + rank - 1) % districts.length];
+    const displayName = item.teamMode === "team"
+      ? `Regu Simulasi ${district.name} ${rank}`
+      : `Peserta Simulasi ${String(divisionIndex * 3 + rank).padStart(3, "0")}`;
+    return { item, entryId, entityId, district, displayName };
+  }));
+  await Promise.all(registrations.map(({ item, entityId, district, displayName }) =>
+    setDoc(doc(firestore, `events/${eventId}/${item.teamMode === "team" ? "teams" : "participants"}`, entityId), {
+      eventId, districtId: district.id, displayName, status: "simulation", createdAt: new Date(), updatedAt: new Date(),
     }),
   ));
+  await Promise.all(registrations.map(({ item, entryId, entityId, district, displayName }) =>
+    setDoc(doc(firestore, `events/${eventId}/registrations`, entryId), {
+      eventId, districtId: district.id, branchId: item.branchId, divisionId: item.id, entryType: item.teamMode, displayName,
+      participantId: item.teamMode === "team" ? null : entityId, teamId: item.teamMode === "team" ? entityId : null,
+      status: "verified", eligibilityStatus: "needs_manual_review", createdBy: "emulator-seed", createdAt: new Date(),
+      updatedBy: "emulator-seed", updatedAt: new Date(), idempotencyKey: `seed-${entryId}`,
+    }),
+  ));
+  await Promise.all(divisions.map((item, index) => setDoc(doc(firestore, `events/${eventId}/schedules`, `simulasi-${item.id}`), {
+    eventId, branchId: item.branchId, divisionId: item.id, venueId: null, title: `Jadwal Simulasi ${item.name}`,
+    date: `2027-01-${String(10 + (index % 12)).padStart(2, "0")}`, startTime: "08:00", endTime: "11:30",
+    status: "draft", notes: "Data simulasi; bukan jadwal resmi panitia.", updatedAt: new Date(),
+  })));
+  await Promise.all(divisions.map((item) => {
+    const entries = registrations.filter((entry) => entry.item.id === item.id);
+    return setDoc(doc(firestore, `events/${eventId}/resultSubmissions`, `simulasi-${item.id}`), {
+      eventId, branchId: item.branchId, divisionId: item.id,
+      winners: demoAwardSlots.map((slot, index) => ({ awardId: slot.id, entryId: entries[index].entryId })),
+      sourceDocumentNumber: `SIMULASI/${item.id.toUpperCase()}/2027`, establishedAt: "2027-01-22",
+      notes: "Data simulasi untuk pengujian; bukan hasil resmi.", status: "draft", createdBy: "emulator-seed",
+      createdAt: new Date(), updatedBy: "emulator-seed", updatedAt: new Date(), idempotencyKey: `seed-result-${item.id}`,
+    });
+  }));
 });
 await testEnvironment.cleanup();
 console.log(
-  `Seed emulator selesai: ${users.length} akun, ${districts.length} kecamatan, ${branches.length} cabang draft, dan ${divisions.length} golongan contoh.`,
+  `Data simulasi selesai: ${users.length} akun, ${districts.length} kecamatan, ${branches.length} cabang, ${divisions.length} golongan, ${divisions.length * 3} pendaftaran, jadwal, dan draf hasil tanpa skor.`,
 );

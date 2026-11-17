@@ -158,7 +158,7 @@ export function AdminDashboard() {
           <div className="quota-bar">
             <span style={{ width: "12%" }} />
           </div>
-          <small>Estimasi internal, bukan metrik billing Firebase.</small>
+          <small>Ringkasan pemantauan internal.</small>
         </article>
       </section>
     </div>

@@ -12,6 +12,7 @@
     "dev:emulator": "npm run dev:emulator -w @mtqh/web",
     "emulators": "firebase emulators:start --only auth,firestore --project mtqh-pinrang-2027-demo",
     "seed:emulator": "node scripts/seed-emulator.mjs --confirm-emulator",
+    "reset:emulator-demo": "node scripts/reset-emulator-demo.mjs --confirm-emulator",
     "build": "npm run build -w @mtqh/web && npm run build -w @mtqh/worker",
     "lint": "npm run lint -w @mtqh/web && npm run typecheck -w @mtqh/worker",
     "typecheck": "npm run typecheck -w @mtqh/web && npm run typecheck -w @mtqh/worker",

@@ -88,7 +88,7 @@ export function MasterDataPage() {
       setDivisions(data.divisions);
     } catch {
       setError(
-        "Master data belum dapat dimuat. Periksa emulator/koneksi lalu coba lagi.",
+        "Data acuan belum dapat dimuat. Periksa koneksi lalu coba lagi.",
       );
     } finally {
       setLoading(false);
@@ -391,13 +391,14 @@ export function MasterDataPage() {
           <form
             className="surface master-form"
             onSubmit={branchForm.handleSubmit(saveBranch)}
+            noValidate
           >
             <h2>
               {branchEditor ? "Edit cabang draft" : "Tambah cabang draft"}
             </h2>
-            <p>ID teknis tidak dapat diubah setelah dibuat.</p>
+            <p>Kode data tidak dapat diubah setelah dibuat.</p>
             <FormField
-              label="ID teknis"
+              label="Kode data"
               error={branchForm.formState.errors.id?.message}
             >
               <input
@@ -486,13 +487,14 @@ export function MasterDataPage() {
           <form
             className="surface master-form"
             onSubmit={divisionForm.handleSubmit(saveDivision)}
+            noValidate
           >
             <h2>
               {divisionEditor ? "Edit golongan draft" : "Tambah golongan draft"}
             </h2>
             <p>Kuota dan batas usia belum tersedia sampai juknis disahkan.</p>
             <FormField
-              label="ID teknis"
+              label="Kode data"
               error={divisionForm.formState.errors.id?.message}
             >
               <input

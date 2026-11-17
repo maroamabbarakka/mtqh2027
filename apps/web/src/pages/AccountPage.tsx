@@ -102,10 +102,8 @@ export function AccountPage() {
       );
       await auth.refreshProfile();
       setMessage("Profil berhasil diperbarui.");
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Profil gagal diperbarui.",
-      );
+    } catch {
+      setError("Profil belum berhasil diperbarui. Periksa isian dan coba lagi.");
     } finally {
       setSaving(false);
     }
@@ -192,7 +190,7 @@ export function AccountPage() {
         </div>
       )}
       <div className="account-grid">
-        <form className="surface account-form" onSubmit={saveProfile}>
+        <form className="surface account-form" onSubmit={saveProfile} noValidate>
           <div className="form-section-title">
             <UserRound />
             <div>
@@ -254,7 +252,7 @@ export function AccountPage() {
             ))}
           </div>
         </form>
-        <form className="surface account-form" onSubmit={changePassword}>
+        <form className="surface account-form" onSubmit={changePassword} noValidate>
           <div className="form-section-title">
             <KeyRound />
             <div>

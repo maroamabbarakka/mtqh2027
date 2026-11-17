@@ -53,7 +53,7 @@ export default function AdminRoutes() {
                 element={
                   <PlaceholderPage
                     title="Laporan"
-                    description="Laporan mengikuti scope akun dan tidak mengekspos data pribadi."
+                    description="Laporan mengikuti kewenangan akun dan tidak menampilkan data pribadi."
                     admin
                   />
                 }

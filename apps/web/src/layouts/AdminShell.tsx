@@ -90,8 +90,8 @@ export function AdminShell() {
           ))}
         </nav>
         <div className="spark-card">
-          <span>⚡ Firebase Spark</span>
-          <small>Arsitektur tanpa billing</small>
+          <span>● Layanan tersedia</span>
+          <small>Mode hemat sumber daya</small>
         </div>
         <button
           className="public-link signout-link"

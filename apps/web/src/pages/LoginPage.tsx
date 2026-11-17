@@ -202,7 +202,7 @@ export function ForgotPasswordPage() {
             </div>
           </div>
         ) : (
-          <form onSubmit={submit}>
+          <form onSubmit={submit} noValidate>
             <label>
               Email akun
               <div className="input-wrap">

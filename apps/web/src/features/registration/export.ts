@@ -28,14 +28,14 @@ export function buildRegistrationCsv(options: ExportOptions) {
     ["Laporan", "Pendaftaran Peserta & Regu — DRAFT INTERNAL"],
     ["Event ID", options.eventId],
     ["Dibuat", witaTimestamp(options.generatedAt ?? new Date())],
-    ["Scope", options.scopeLabel],
+    ["Cakupan data", options.scopeLabel],
     ["Filter", options.filterLabel],
     ["Jumlah entri", options.registrations.length],
     [],
     ["ID Entri", "Tipe", "Nama entri", "Kecamatan ID", "Kecamatan", "Golongan ID", "Golongan", "Status"],
     ...options.registrations.map((item) => [item.id, item.entryType === "team" ? "Regu" : "Individual", item.displayName, item.districtId, options.districtNames[item.districtId] ?? item.districtId, item.divisionId, options.divisionNames[item.divisionId] ?? item.divisionId, options.statusLabels[item.status]]),
     [],
-    ["Catatan", "Snapshot maksimal 50 entri yang telah lolos scope Firestore. Tidak memuat NIK, tanggal lahir, kontak, catatan privat, atau audit log."],
+    ["Catatan", "Daftar maksimal 50 entri sesuai kewenangan akun. Berkas ini tidak memuat NIK, tanggal lahir, kontak, catatan pribadi, atau riwayat pemeriksaan."],
   ];
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}`;
 }

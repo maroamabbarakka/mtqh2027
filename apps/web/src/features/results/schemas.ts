@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const technicalId = z.string().trim().regex(/^[a-z0-9][a-z0-9_-]{1,79}$/, "ID teknis tidak valid.");
+const technicalId = z.string().trim().regex(/^[a-z0-9][a-z0-9_-]{1,79}$/, "Kode data belum sesuai. Gunakan huruf kecil, angka, tanda hubung, atau garis bawah.");
 
 export const resultWinnerSchema = z.object({
   awardId: technicalId,

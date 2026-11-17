@@ -297,3 +297,26 @@
 - Logo ditampilkan sebagai aset paket dengan label menunggu verifikasi panitia.
 - Tidak ada write produksi dan tidak ada deployment.
 - Konfigurasi Firebase client disimpan pada `.env.local` yang diabaikan Git. `storageBucket` dari snippet konsol tidak diteruskan ke aplikasi karena Cloud Storage dilarang pada arsitektur Spark-only ini.
+## Fase 14 — Katalog dan data simulasi lengkap (17 November 2026)
+
+### Cakupan selesai
+
+- Redaksi pengguna dirapikan agar istilah infrastruktur tidak tampil pada halaman operasional.
+- Formulir akun, pemulihan akun, data acuan, pendaftaran, dan hasil memakai validasi bertema aplikasi tanpa popup validasi bawaan browser.
+- Katalog simulasi berisi 8 cabang dan 46 golongan draf berdasarkan pola umum penyelenggaraan MTQ; seluruh keputusan Pinrang 2027 tetap menunggu juknis.
+- Seed emulator menghasilkan 138 pendaftaran yang mewakili semua kecamatan dan golongan, berikut peserta/regu, jadwal draf, serta pengajuan hasil draf tanpa skor.
+- `npm run reset:emulator-demo` membersihkan seluruh akun dan data lokal dengan target emulator tetap.
+
+### Quality gate
+
+- Lint dan TypeScript strict: lulus.
+- Unit test frontend 21/21 dan Worker 23/23: lulus.
+- Firestore Rules 16/16: lulus, termasuk penolakan field skor.
+- Build frontend dan Worker: lulus.
+- Seed, reset, dan seed ulang emulator: lulus.
+
+### Batas fase
+
+- Data simulasi tidak dideploy ke Firestore produksi.
+- Golongan, persyaratan, batas usia, kuota, jadwal, dan hasil belum resmi serta tetap nonaktif/draf.
+- Cabang Hadis belum dimasukkan sampai ada keputusan resmi panitia.
