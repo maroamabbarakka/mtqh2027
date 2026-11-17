@@ -121,8 +121,8 @@ export function PublicHome() {
             <span>
               <Clock3 /> Status
             </span>
-            <strong>Draft</strong>
-            <small>Menunggu keputusan panitia</small>
+            <strong>Persiapan</strong>
+            <small>Informasi resmi diterbitkan bertahap</small>
           </article>
         </div>
         <div className="overview-grid">
@@ -180,19 +180,6 @@ export function PublicHome() {
               <div><Badge tone="warning">SIMULASI · {article.category.toUpperCase()}</Badge><h3><Link to={`/berita/${article.slug}`}>{article.title}</Link></h3><p>{article.excerpt}</p><Link className="news-read" to={`/berita/${article.slug}`}>Baca artikel <ArrowRight /></Link></div>
             </article>)}
           </div>
-        </div>
-      </section>
-      <section className="identity-note page-wrap">
-        <img src={brandAssets.pinrangLogo} alt="Lambang Kabupaten Pinrang" />
-        <img src={brandAssets.lptqLogo} alt="Lambang LPTQ Kabupaten Pinrang" />
-        <div>
-          <Badge tone="warning">VERIFIKASI ASET</Badge>
-          <h2>Identitas visual dari paket proyek</h2>
-          <p>
-            Logo digunakan secara proporsional sebagai identitas acara,
-            pemerintah daerah, dan lembaga. Status otorisasi final tetap
-            menunggu konfirmasi panitia.
-          </p>
         </div>
       </section>
     </>

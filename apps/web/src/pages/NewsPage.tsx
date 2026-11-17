@@ -11,7 +11,7 @@ export function NewsPage() {
       <p>Contoh penyajian informasi kegiatan. Seluruh artikel di bawah belum merupakan pengumuman resmi panitia.</p>
     </header>
     <div className="page-wrap">
-      <div className="simulation-notice" role="note"><strong>Mudah dibersihkan sebelum produksi</strong><span>Artikel dan sampul simulasi tersimpan terpisah dari data resmi dan tidak memuat data pribadi peserta.</span></div>
+      <div className="simulation-notice" role="note"><strong>Informasi contoh</strong><span>Artikel simulasi membantu memperlihatkan susunan portal dan tidak memuat pengumuman resmi maupun data pribadi peserta.</span></div>
       <section className="news-grid" aria-label="Daftar berita simulasi">
         {publicNews.map((article, index) => <article className={index === 0 ? 'news-card news-card-featured' : 'news-card'} key={article.slug}>
           <Link className="news-cover" to={`/berita/${article.slug}`} aria-label={`Baca ${article.title}`}><img src={article.cover} alt={article.coverAlt} /></Link>

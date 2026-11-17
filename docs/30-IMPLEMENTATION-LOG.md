@@ -397,3 +397,15 @@
 - Setiap berita memiliki halaman detail, metadata, label simulasi, redaksi lengkap, dan peringatan bahwa konten bukan pengumuman resmi.
 - Tiga cover editorial dibuat khusus untuk prototipe, tidak memuat logo, teks, data pribadi, skor, maupun klaim dokumentasi resmi; aset dikompresi ke WebP.
 - Beranda, halaman berita, popup klasemen, footer, dan route detail diuji pada desktop dan mobile. Bukti visual tersedia di `artifacts/screenshots/phase-22/`.
+
+## Fase 23–24 — Audit fidelitas mockup dan proporsi portal publik (17 November 2026)
+
+- Implementasi dibandingkan kembali dengan mockup portal detail dan spesifikasi layar publik, terutama pada hierarki hero, navigasi cepat, statistik, berita editorial, dan footer.
+- Konflik CSS lama yang mengubah footer dari grid menjadi flex vertikal ditemukan dan diperbaiki; footer kini benar-benar empat kolom pada desktop, tiga kolom plus panel status pada tablet, dan dua kolom ringkas pada mobile.
+- Blok identitas yang menduplikasi logo tepat sebelum footer dihapus. Identitas Kabupaten Pinrang dan LPTQ kini hanya disajikan satu kali secara ringkas di footer.
+- Berita beranda diubah dari tiga kartu seragam menjadi satu berita utama dan dua berita pendamping seperti arah editorial mockup; pada mobile seluruh kartu kembali tersusun satu kolom.
+- KPI mobile menggunakan dua kolom dengan kartu status selebar baris sehingga halaman lebih ringkas tanpa mengurangi ukuran target sentuh.
+- Redaksi internal seperti “paket proyek”, “verifikasi aset”, “mudah dibersihkan sebelum produksi”, dan “pengujian tampilan” dihapus dari halaman publik.
+- Status acara pada beranda menggunakan “Persiapan” dan bukan istilah teknis “Draft”.
+- Perbedaan dari mockup yang dipertahankan secara sengaja: tidak ada e-scoring, Dewan Hakim, data 2025, lokasi generatif, foto yang diklaim resmi, ataupun angka hasil yang belum disahkan.
+- Lint, TypeScript strict, 22 unit test, build, dan enam skenario E2E portal publik lulus pada viewport acuan tanpa overflow.

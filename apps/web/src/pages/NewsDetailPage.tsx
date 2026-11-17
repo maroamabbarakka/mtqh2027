@@ -16,6 +16,6 @@ export function NewsDetailPage() {
       <div className="news-meta"><span><CalendarDays />{article.publishedLabel}</span><span><Clock3 />{article.readTime}</span><span><Share2 />Penulis Simulasi</span></div>
     </header>
     <figure><img src={article.cover} alt={article.coverAlt} /><figcaption>Ilustrasi visual untuk konten simulasi, bukan dokumentasi kegiatan resmi.</figcaption></figure>
-    <div className="news-article-copy">{article.content.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<aside><strong>Perhatian</strong>Isi artikel ini dibuat untuk pengujian tampilan. Informasi resmi hanya berlaku setelah diterbitkan dan disahkan panitia.</aside></div>
+    <div className="news-article-copy">{article.content.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<aside><strong>Perhatian</strong>Artikel ini merupakan konten simulasi. Informasi resmi hanya berlaku setelah diterbitkan dan disahkan panitia.</aside></div>
   </article>
 }
