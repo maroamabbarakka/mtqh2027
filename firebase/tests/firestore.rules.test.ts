@@ -205,6 +205,26 @@ describe("Firestore RBAC dan isolasi data", () => {
     await assertSucceeds(getDoc(target));
     await assertFails(updateDoc(target, { title: "Perubahan tanpa kewenangan" }));
   });
+
+  it("mengizinkan admin event membuat arena draf dengan audit dan menolak admin kafilah", async () => {
+    const admin = environment.authenticatedContext("event-admin").firestore();
+    const batch = writeBatch(admin);
+    batch.set(doc(admin, `events/${eventId}/venues/arena-baru`), {
+      id: "arena-baru", eventId, name: "Arena Baru", description: "Draf", status: "draft", revision: 1,
+      createdBy: "event-admin", createdAt: serverTimestamp(), updatedBy: "event-admin", updatedAt: serverTimestamp(), idempotencyKey: "venue-create-1",
+    });
+    batch.set(doc(collection(admin, `events/${eventId}/eventAudit`)), {
+      actorUid: "event-admin", action: "schedule_venue_created", resourceType: "venue", resourceId: "arena-baru",
+      summary: "Arena draf Arena Baru dibuat", createdAt: serverTimestamp(), idempotencyKey: "venue-create-1",
+    });
+    await assertSucceeds(batch.commit());
+
+    const kafilah = environment.authenticatedContext("kafilah-tiroang").firestore();
+    await assertFails(setDoc(doc(kafilah, `events/${eventId}/venues/arena-liar`), {
+      id: "arena-liar", eventId, name: "Arena Liar", description: "", status: "draft", revision: 1,
+      createdBy: "kafilah-tiroang", createdAt: serverTimestamp(), updatedBy: "kafilah-tiroang", updatedAt: serverTimestamp(), idempotencyKey: "forbidden",
+    }));
+  });
   it("mengizinkan admin kafilah membaca wilayah sendiri dan menolak wilayah lain", async () => {
     const db = environment
       .authenticatedContext("kafilah-tiroang", {

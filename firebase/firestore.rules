@@ -191,12 +191,54 @@ service cloud.firestore {
 
       match /venues/{venueId} {
         allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
-        allow write: if false;
+        allow create: if masterAdmin(eventId)
+          && request.resource.data.keys().hasOnly(['id','eventId','name','description','status','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.id == venueId
+          && request.resource.data.eventId == eventId
+          && request.resource.data.id is string
+          && request.resource.data.id.matches('^[a-z0-9]+(?:-[a-z0-9]+)*$')
+          && request.resource.data.id.size() >= 3
+          && request.resource.data.id.size() <= 60
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 3
+          && request.resource.data.name.size() <= 100
+          && request.resource.data.description is string
+          && request.resource.data.description.size() <= 240
+          && request.resource.data.status == 'draft'
+          && request.resource.data.revision == 1
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update, delete: if false;
       }
 
       match /schedules/{scheduleId} {
         allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
-        allow write: if false;
+        allow create: if masterAdmin(eventId)
+          && request.resource.data.keys().hasOnly(['eventId','branchId','divisionId','venueId','title','date','startTime','endTime','notes','status','revision','createdBy','createdAt','updatedBy','updatedAt','idempotencyKey'])
+          && request.resource.data.eventId == eventId
+          && request.resource.data.title is string
+          && request.resource.data.title.size() >= 3
+          && request.resource.data.title.size() <= 120
+          && request.resource.data.date is string
+          && request.resource.data.date.matches('^\\d{4}-\\d{2}-\\d{2}$')
+          && request.resource.data.startTime is string
+          && request.resource.data.startTime.matches('^\\d{2}:\\d{2}$')
+          && request.resource.data.endTime is string
+          && request.resource.data.endTime.matches('^\\d{2}:\\d{2}$')
+          && request.resource.data.endTime > request.resource.data.startTime
+          && request.resource.data.notes is string
+          && request.resource.data.notes.size() <= 240
+          && get(/databases/$(database)/documents/events/$(eventId)/divisions/$(request.resource.data.divisionId)).data.branchId == request.resource.data.branchId
+          && exists(/databases/$(database)/documents/events/$(eventId)/venues/$(request.resource.data.venueId))
+          && request.resource.data.status == 'draft'
+          && request.resource.data.revision == 1
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update, delete: if false;
       }
 
       match /eventAudit/{auditId} {
@@ -208,13 +250,17 @@ service cloud.firestore {
           || (hasRole(eventId, ['super_admin','event_admin','verifier'])
             && request.resource.data.action in ['registration_review_started','registration_revision_requested','registration_rejected'])
           || (hasRole(eventId, ['branch_admin'])
-            && request.resource.data.action == 'result_draft_created'))
+            && request.resource.data.action == 'result_draft_created')
+          || (masterAdmin(eventId)
+            && request.resource.data.action in ['schedule_venue_created','schedule_session_created']))
           && request.resource.data.keys().hasOnly(['actorUid','action','resourceType','resourceId','summary','createdAt','idempotencyKey'])
           && request.resource.data.actorUid == request.auth.uid
           && ((request.resource.data.action.matches('master_branch_.*') && request.resource.data.resourceType == 'branch')
             || (request.resource.data.action.matches('master_division_.*') && request.resource.data.resourceType == 'division')
             || (request.resource.data.action.matches('registration_.*') && request.resource.data.resourceType == 'registration')
-            || (request.resource.data.action.matches('result_.*') && request.resource.data.resourceType == 'resultSubmission'))
+            || (request.resource.data.action.matches('result_.*') && request.resource.data.resourceType == 'resultSubmission')
+            || (request.resource.data.action == 'schedule_venue_created' && request.resource.data.resourceType == 'venue')
+            || (request.resource.data.action == 'schedule_session_created' && request.resource.data.resourceType == 'schedule'))
           && request.resource.data.summary is string
           && request.resource.data.summary.size() <= 160
           && request.resource.data.createdAt == request.time;

@@ -28,6 +28,7 @@
 - [x] Ekspor CSV registrasi dibatasi scope query/role, memuat filter dan timestamp WITA, serta tidak menyertakan kontak, PII sensitif, actor UID, atau audit.
 - [x] Daftar registrasi memakai pagination cursor 25 entri, tetap dibatasi scope akun, dan telah diuji dengan 138 entri lintas kecamatan.
 - [x] Slot penghargaan dapat dikonfigurasi sebagai draft oleh admin dengan audit atomik; konfigurasi tidak dianggap sah dan tidak memengaruhi klasemen.
+- [x] Arena dan sesi dapat dibuat sebagai draf internal oleh admin event dengan audit atomik; tidak ada publikasi otomatis dan akun kafilah ditolak Rules.
 
 ## Mutu visual dan fungsi
 - [ ] Dashboard desktop cocok arahan mockup tanpa fitur e-scoring atau data 2025.

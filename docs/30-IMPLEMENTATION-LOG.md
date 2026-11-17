@@ -348,3 +348,13 @@
 - Firestore Rules mengizinkan akun aktif membaca jadwal internal dan menolak create/update/delete; pengujian Rules bertambah menjadi 17 skenario.
 - Seed emulator menyediakan empat arena simulasi dan 46 sesi draf. Tidak ada jadwal yang diproyeksikan ke koleksi publik.
 - Lint, TypeScript strict, 44 unit test, Rules, build, dan E2E desktop/mobile lulus.
+
+## Fase 18 — Editor jadwal internal berbasis draf (17 November 2026)
+
+- Admin event dan super admin dapat menambahkan arena serta sesi sebagai draf internal; fitur tidak membuat proyeksi atau publikasi ke portal umum.
+- Form memakai validasi kode teknis, golongan, arena, tanggal, rentang waktu, judul, dan catatan. Waktu selesai wajib lebih akhir daripada waktu mulai.
+- Setiap pembuatan arena atau sesi memakai satu batch atomik bersama catatan audit dan kunci idempotensi.
+- Firestore Rules membatasi operasi kepada peran pengelola, memastikan referensi golongan/arena tersedia, dan tetap menolak perubahan atau penghapusan langsung dari browser.
+- Akun tanpa izin pengelolaan hanya dapat meninjau jadwal internal dan tidak melihat tombol editor.
+- Lint, TypeScript strict, 44 tes unit, 18 tes Rules, build emulator, dan E2E penyimpanan desktop/mobile lulus.
+- Bukti visual tersimpan di `artifacts/screenshots/phase-18/`; seluruh data pengujian hanya berada di emulator lokal.
