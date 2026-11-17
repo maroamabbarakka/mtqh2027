@@ -22,7 +22,9 @@ test("admin meninjau dan memfilter jadwal simulasi", async ({ page }) => {
 
   await page.getByRole("button", { name: "Tambah arena" }).click();
   await expect(page.getByRole("dialog", { name: "Tambah arena" })).toBeVisible();
-  await page.getByLabel("Kode arena").fill("arena-e2e");
+  await page.getByRole("button", { name: "Simpan arena" }).click();
+  await expect(page.getByRole("alert")).toContainText("minimal");
+  await page.getByLabel("Singkatan arena").fill("arena-e2e");
   await page.getByLabel("Nama arena").fill("Arena Simulasi E2E");
   await page.getByLabel("Keterangan").fill("Data uji yang hanya tersimpan di emulator lokal.");
   await page.getByRole("button", { name: "Simpan arena" }).click();
@@ -37,7 +39,7 @@ test("admin meninjau dan memfilter jadwal simulasi", async ({ page }) => {
   await page.getByLabel("Waktu mulai").fill("13:00");
   await page.getByLabel("Waktu selesai").fill("15:00");
   await page.getByLabel("Catatan internal").fill("Belum menjadi jadwal resmi panitia.");
-  await page.screenshot({ path: "artifacts/screenshots/phase-18/schedule-editor-1440.png", fullPage: true });
+  await page.screenshot({ path: "artifacts/screenshots/phase-19/schedule-editor-refined-1440.png", fullPage: true });
   await page.getByRole("button", { name: "Simpan sesi" }).click();
   await expect(page.getByText("Sesi berhasil disimpan sebagai draf.")).toBeVisible();
   await expect(page.getByText("Sesi Simulasi E2E")).toBeVisible();
@@ -49,6 +51,6 @@ test("admin meninjau dan memfilter jadwal simulasi", async ({ page }) => {
     await closeNavigation.click();
   }
   await page.waitForTimeout(350);
-  await page.screenshot({ path: "artifacts/screenshots/phase-18/schedule-editor-390.png" });
+  await page.screenshot({ path: "artifacts/screenshots/phase-19/schedule-editor-refined-390.png" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 });

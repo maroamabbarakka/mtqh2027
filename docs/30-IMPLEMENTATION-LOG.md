@@ -358,3 +358,12 @@
 - Akun tanpa izin pengelolaan hanya dapat meninjau jadwal internal dan tidak melihat tombol editor.
 - Lint, TypeScript strict, 44 tes unit, 18 tes Rules, build emulator, dan E2E penyimpanan desktop/mobile lulus.
 - Bukti visual tersimpan di `artifacts/screenshots/phase-18/`; seluruh data pengujian hanya berada di emulator lokal.
+
+## Fase 19 — Perapian pengalaman editor jadwal (17 November 2026)
+
+- Pesan validasi kini seluruhnya menggunakan Bahasa Indonesia dan tampil di dalam modal, sehingga tidak tertutup lapisan dialog.
+- Status koneksi diperbarui langsung saat perangkat online/offline; tombol simpan dinonaktifkan saat offline dengan penjelasan yang mudah dipahami.
+- Modal mengunci scroll halaman, dapat ditutup dengan tombol Escape, mempertahankan fokus awal yang jelas, dan mencegah penutupan selama penyimpanan.
+- Tombol tambah arena dan sesi tetap tersedia pada layar kecil, sedangkan area tindakan modal dibuat melekat di bawah agar mudah dijangkau.
+- Label, contoh isian, penanda opsional, efek fokus, hover kartu, pemenggalan teks, dan kontras informasi draf diselaraskan.
+- E2E mencakup pesan validasi, penyimpanan arena/sesi, serta pemeriksaan overflow desktop dan mobile. Bukti visual tersedia di `artifacts/screenshots/phase-19/`.

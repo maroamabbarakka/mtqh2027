@@ -24,6 +24,8 @@ export function SchedulePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+  const [formError, setFormError] = useState<string | null>(null);
   const [editor, setEditor] = useState<"venue" | "schedule" | null>(null);
   const [venueForm, setVenueForm] = useState({ id: "", name: "", description: "" });
   const [scheduleForm, setScheduleForm] = useState({ divisionId: "", venueId: "", title: "", date: "", startTime: "08:00", endTime: "11:30", notes: "" });
@@ -53,6 +55,36 @@ export function SchedulePage() {
     return () => window.clearTimeout(timer);
   }, [reload]);
 
+  useEffect(() => {
+    const updateConnection = () => setIsOnline(navigator.onLine);
+    window.addEventListener("online", updateConnection);
+    window.addEventListener("offline", updateConnection);
+    return () => {
+      window.removeEventListener("online", updateConnection);
+      window.removeEventListener("offline", updateConnection);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!editor) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !saving) setEditor(null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [editor, saving]);
+
+  function openEditor(value: "venue" | "schedule") {
+    setError(null);
+    setFormError(null);
+    setSuccess(null);
+    setEditor(value);
+  }
+
   const branchNames = useMemo(() => Object.fromEntries(branches.map((item) => [item.id, item.shortName])), [branches]);
   const divisionNames = useMemo(() => Object.fromEntries(divisions.map((item) => [item.id, item.name])), [divisions]);
   const venueNames = useMemo(() => Object.fromEntries(venues.map((item) => [item.id, item.name])), [venues]);
@@ -65,10 +97,10 @@ export function SchedulePage() {
     event.preventDefault();
     if (!services || !auth.user) return;
     const parsed = venueSchema.safeParse(venueForm);
-    if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "Data arena belum lengkap."); return; }
-    setSaving(true); setError(null);
+    if (!parsed.success) { setFormError(parsed.error.issues[0]?.message ?? "Data arena belum lengkap."); return; }
+    setSaving(true); setFormError(null);
     try { await createDraftVenue(services.firestore, eventId, auth.user.uid, parsed.data); setSuccess("Arena berhasil disimpan sebagai draf."); setEditor(null); setVenueForm({ id: "", name: "", description: "" }); await reload(); }
-    catch { setError("Arena belum dapat disimpan. Pastikan kode belum digunakan."); }
+    catch { setFormError("Arena belum dapat disimpan. Pastikan singkatan belum digunakan."); }
     finally { setSaving(false); }
   }
 
@@ -76,19 +108,19 @@ export function SchedulePage() {
     event.preventDefault();
     if (!services || !auth.user) return;
     const parsed = scheduleSchema.safeParse(scheduleForm);
-    if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "Data sesi belum lengkap."); return; }
+    if (!parsed.success) { setFormError(parsed.error.issues[0]?.message ?? "Data sesi belum lengkap."); return; }
     const division = divisions.find((item) => item.id === parsed.data.divisionId);
-    if (!division) { setError("Golongan yang dipilih tidak tersedia."); return; }
-    setSaving(true); setError(null);
+    if (!division) { setFormError("Golongan yang dipilih tidak tersedia."); return; }
+    setSaving(true); setFormError(null);
     try { await createDraftSchedule(services.firestore, eventId, auth.user.uid, division.branchId, parsed.data); setSuccess("Sesi berhasil disimpan sebagai draf."); setEditor(null); setScheduleForm({ divisionId: "", venueId: "", title: "", date: "", startTime: "08:00", endTime: "11:30", notes: "" }); await reload(); }
-    catch { setError("Sesi belum dapat disimpan. Periksa pilihan golongan dan arena."); }
+    catch { setFormError("Sesi belum dapat disimpan. Periksa pilihan golongan dan arena."); }
     finally { setSaving(false); }
   }
 
-  if (loading) return <main className="admin-page"><div className="registration-skeleton"><span/><span/><span/></div></main>;
+  if (loading) return <main className="admin-page" aria-busy="true" aria-label="Memuat jadwal"><div className="registration-skeleton" aria-hidden="true"><span/><span/><span/></div></main>;
   return <main className="admin-page schedule-page">
-    <header className="admin-heading"><div><span>Agenda internal • belum dipublikasikan</span><h1>Jadwal & Arena</h1><p>Tinjau susunan sesi simulasi sambil menunggu tanggal dan arena resmi panitia.</p></div>{auth.hasPermission("settings:manage") ? <div><Button variant="secondary" onClick={() => setEditor("venue")}><Plus size={16}/> Tambah arena</Button><Button onClick={() => setEditor("schedule")} disabled={venues.length === 0}><Plus size={16}/> Tambah sesi</Button></div> : <div aria-hidden="true"/>}</header>
-    {!navigator.onLine && <div className="stale-banner"><WifiOff/><div><strong>Anda sedang offline</strong><span>Data yang terlihat mungkin belum diperbarui.</span></div></div>}
+    <header className="admin-heading"><div><span>Agenda internal • belum dipublikasikan</span><h1>Jadwal & Arena</h1><p>Tinjau susunan sesi simulasi sambil menunggu tanggal dan arena resmi panitia.</p></div>{auth.hasPermission("settings:manage") ? <div className="schedule-actions"><Button variant="secondary" onClick={() => openEditor("venue")}><Plus size={16}/> Tambah arena</Button><Button onClick={() => openEditor("schedule")} disabled={venues.length === 0}><Plus size={16}/> Tambah sesi</Button></div> : <div aria-hidden="true"/>}</header>
+    {!isOnline && <div className="stale-banner" role="status"><WifiOff/><div><strong>Anda sedang offline</strong><span>Data yang terlihat mungkin belum diperbarui. Penambahan data dinonaktifkan sementara.</span></div></div>}
     {error && <div className="registration-alert error" role="alert"><AlertTriangle/><span>{error}</span><Button variant="secondary" onClick={() => void reload()}>Coba lagi</Button></div>}
     {success && <div className="registration-alert success" role="status"><CheckCircle2/><span>{success}</span><button onClick={() => setSuccess(null)} aria-label="Tutup"><X/></button></div>}
     <div className="safe-master-note"><AlertTriangle/> Seluruh jadwal di halaman ini adalah simulasi internal. Tanggal, jam, dan arena belum menjadi informasi resmi.</div>
@@ -97,8 +129,8 @@ export function SchedulePage() {
       <div className="schedule-filters"><label>Cabang<select value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="">Semua cabang</option>{branches.map((item) => <option key={item.id} value={item.id}>{item.shortName}</option>)}</select></label><label>Tanggal simulasi<input type="date" value={date} onChange={(event) => setDate(event.target.value)}/></label>{(branchId || date || search) && <Button variant="secondary" onClick={() => { setBranchId(""); setDate(""); setSearch(""); }}>Bersihkan filter</Button>}</div>
       {visible.length === 0 ? <div className="master-empty"><CalendarDays/><strong>Tidak ada sesi yang sesuai</strong><span>Ubah pilihan filter atau tunggu jadwal draf ditambahkan.</span></div> : <div className="schedule-grid">{visible.map((item) => <article className="schedule-card" key={item.id}><header><Badge tone="warning">SIMULASI</Badge><span>{branchNames[item.branchId] ?? item.branchId}</span></header><h3>{divisionNames[item.divisionId] ?? item.title}</h3><p>{item.title}</p><dl><div><CalendarDays/><dt>Tanggal</dt><dd>{formatDate(item)}</dd></div><div><Clock3/><dt>Waktu</dt><dd>{formatTime(item)}</dd></div><div><MapPin/><dt>Arena</dt><dd>{item.venueId ? venueNames[item.venueId] ?? "Arena draf" : "Belum ditetapkan"}</dd></div></dl></article>)}</div>}
     </section>
-    {editor === "venue" && <div className="modal-backdrop"><section className="registration-modal" role="dialog" aria-modal="true" aria-labelledby="venue-editor-title"><header><div><span>Data acuan draf</span><h2 id="venue-editor-title">Tambah arena</h2></div><button onClick={() => setEditor(null)} aria-label="Tutup"><X/></button></header><form className="registration-form" onSubmit={saveVenue} noValidate><label>Kode arena<input value={venueForm.id} onChange={(event) => setVenueForm({ ...venueForm, id: event.target.value })} placeholder="arena-utama"/></label><label>Nama arena<input value={venueForm.name} onChange={(event) => setVenueForm({ ...venueForm, name: event.target.value })} placeholder="Nama lokasi"/></label><label>Keterangan<textarea rows={3} value={venueForm.description} onChange={(event) => setVenueForm({ ...venueForm, description: event.target.value })}/></label><div className="safe-master-note"><AlertTriangle/> Arena tersimpan sebagai draf internal dan belum tampil di portal publik.</div><footer><Button type="button" variant="secondary" onClick={() => setEditor(null)}>Batal</Button><Button type="submit" disabled={saving || !navigator.onLine}>{saving ? "Menyimpan…" : "Simpan arena"}</Button></footer></form></section></div>}
-    {editor === "schedule" && <div className="modal-backdrop"><section className="registration-modal" role="dialog" aria-modal="true" aria-labelledby="schedule-editor-title"><header><div><span>Agenda draf</span><h2 id="schedule-editor-title">Tambah sesi</h2></div><button onClick={() => setEditor(null)} aria-label="Tutup"><X/></button></header><form className="registration-form" onSubmit={saveSchedule} noValidate><label>Golongan<select value={scheduleForm.divisionId} onChange={(event) => setScheduleForm({ ...scheduleForm, divisionId: event.target.value })}><option value="">Pilih golongan</option>{divisions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Arena<select value={scheduleForm.venueId} onChange={(event) => setScheduleForm({ ...scheduleForm, venueId: event.target.value })}><option value="">Pilih arena</option>{venues.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Judul sesi<input value={scheduleForm.title} onChange={(event) => setScheduleForm({ ...scheduleForm, title: event.target.value })} placeholder="Contoh: Babak penyisihan"/></label><div className="form-two"><label>Tanggal<input type="date" value={scheduleForm.date} onChange={(event) => setScheduleForm({ ...scheduleForm, date: event.target.value })}/></label><label>Waktu mulai<input type="time" value={scheduleForm.startTime} onChange={(event) => setScheduleForm({ ...scheduleForm, startTime: event.target.value })}/></label></div><label>Waktu selesai<input type="time" value={scheduleForm.endTime} onChange={(event) => setScheduleForm({ ...scheduleForm, endTime: event.target.value })}/></label><label>Catatan internal<textarea rows={3} value={scheduleForm.notes} onChange={(event) => setScheduleForm({ ...scheduleForm, notes: event.target.value })}/></label><div className="safe-master-note"><AlertTriangle/> Sesi tersimpan sebagai draf dan tidak dipublikasikan otomatis.</div><footer><Button type="button" variant="secondary" onClick={() => setEditor(null)}>Batal</Button><Button type="submit" disabled={saving || !navigator.onLine}>{saving ? "Menyimpan…" : "Simpan sesi"}</Button></footer></form></section></div>}
+    {editor === "venue" && <div className="modal-backdrop"><section className="registration-modal schedule-modal" role="dialog" aria-modal="true" aria-labelledby="venue-editor-title" aria-describedby="venue-editor-note"><header><div><span>Data acuan draf</span><h2 id="venue-editor-title">Tambah arena</h2></div><button type="button" onClick={() => setEditor(null)} aria-label="Tutup formulir" disabled={saving}><X/></button></header><form className="registration-form" onSubmit={saveVenue} noValidate>{formError && <div className="registration-alert error modal-alert" role="alert"><AlertTriangle/><span>{formError}</span></div>}<label>Singkatan arena<input autoFocus autoComplete="off" value={venueForm.id} onChange={(event) => setVenueForm({ ...venueForm, id: event.target.value.toLowerCase().replace(/\s+/g, "-") })} placeholder="contoh: arena-utama"/><small>Gunakan huruf kecil dan tanda hubung agar mudah dikenali.</small></label><label>Nama arena<input autoComplete="off" value={venueForm.name} onChange={(event) => setVenueForm({ ...venueForm, name: event.target.value })} placeholder="Contoh: Aula Utama"/></label><label>Keterangan <small>(opsional)</small><textarea rows={3} maxLength={240} value={venueForm.description} onChange={(event) => setVenueForm({ ...venueForm, description: event.target.value })} placeholder="Catatan singkat mengenai lokasi"/></label><div className="safe-master-note" id="venue-editor-note"><AlertTriangle/> Arena disimpan sebagai draf internal dan belum tampil di portal publik.</div><footer><Button type="button" variant="secondary" onClick={() => setEditor(null)} disabled={saving}>Batal</Button><Button type="submit" disabled={saving || !isOnline}>{saving ? "Menyimpan…" : "Simpan arena"}</Button></footer></form></section></div>}
+    {editor === "schedule" && <div className="modal-backdrop"><section className="registration-modal schedule-modal" role="dialog" aria-modal="true" aria-labelledby="schedule-editor-title" aria-describedby="schedule-editor-note"><header><div><span>Agenda draf</span><h2 id="schedule-editor-title">Tambah sesi</h2></div><button type="button" onClick={() => setEditor(null)} aria-label="Tutup formulir" disabled={saving}><X/></button></header><form className="registration-form" onSubmit={saveSchedule} noValidate>{formError && <div className="registration-alert error modal-alert" role="alert"><AlertTriangle/><span>{formError}</span></div>}<label>Golongan<select autoFocus value={scheduleForm.divisionId} onChange={(event) => setScheduleForm({ ...scheduleForm, divisionId: event.target.value })}><option value="">Pilih golongan</option>{divisions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Arena<select value={scheduleForm.venueId} onChange={(event) => setScheduleForm({ ...scheduleForm, venueId: event.target.value })}><option value="">Pilih arena</option>{venues.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Judul sesi<input autoComplete="off" value={scheduleForm.title} onChange={(event) => setScheduleForm({ ...scheduleForm, title: event.target.value })} placeholder="Contoh: Babak penyisihan"/></label><div className="form-two"><label>Tanggal<input type="date" value={scheduleForm.date} onChange={(event) => setScheduleForm({ ...scheduleForm, date: event.target.value })}/></label><label>Waktu mulai<input type="time" value={scheduleForm.startTime} onChange={(event) => setScheduleForm({ ...scheduleForm, startTime: event.target.value })}/></label></div><label>Waktu selesai<input type="time" value={scheduleForm.endTime} onChange={(event) => setScheduleForm({ ...scheduleForm, endTime: event.target.value })}/></label><label>Catatan internal <small>(opsional)</small><textarea rows={3} maxLength={240} value={scheduleForm.notes} onChange={(event) => setScheduleForm({ ...scheduleForm, notes: event.target.value })} placeholder="Catatan hanya untuk panitia"/></label><div className="safe-master-note" id="schedule-editor-note"><AlertTriangle/> Sesi disimpan sebagai draf dan tidak dipublikasikan otomatis.</div><footer><Button type="button" variant="secondary" onClick={() => setEditor(null)} disabled={saving}>Batal</Button><Button type="submit" disabled={saving || !isOnline}>{saving ? "Menyimpan…" : "Simpan sesi"}</Button></footer></form></section></div>}
   </main>;
 }
 
