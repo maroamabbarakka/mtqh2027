@@ -218,3 +218,21 @@ body.modal-open{overflow:hidden}.district-detail-trigger{display:grid;gap:2px;mi
 @media(max-width:900px){.home-news-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto}.home-news-card:first-child{grid-row:auto;grid-column:1/-1;display:grid;grid-template-columns:1.1fr 1fr}.home-news-card:first-child .home-news-cover{height:100%;aspect-ratio:auto}.home-news-card:not(:first-child){display:block}.home-news-card:not(:first-child) .home-news-cover{height:auto;aspect-ratio:16/9}.home-news-card:not(:first-child) p{display:-webkit-box}}
 @media(max-width:620px){.home-news-grid{grid-template-columns:1fr}.home-news-card:first-child{grid-column:auto;display:block}.home-news-card:first-child .home-news-cover{height:auto;aspect-ratio:16/9}.home-news-card:first-child>div{padding:18px}.home-news-card:first-child h3{font-size:22px}.home-news-card:not(:first-child)>div{padding:18px}}
 @media(max-width:500px){.public-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.public-stat-grid article:last-child{grid-column:1/-1}.public-stat-grid article{padding:16px}.public-stat-grid strong{font-size:26px}}
+
+/* Phase 25 — narrow-phone refinement based on 335 px production capture */
+@media(max-width:500px){
+  .quick-links{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:-70px;padding:6px;border-radius:16px}
+  .quick-links>a{min-height:82px;padding:10px 5px;display:grid;justify-items:center;align-content:center;gap:5px;text-align:center}
+  .quick-links>a>svg:first-child{width:20px}.quick-links>a>svg:last-child,.quick-links span{display:none}.quick-links strong{font-size:11px;line-height:1.25}
+  .overview{padding-top:56px;padding-bottom:56px}.news-section{padding:56px 0}.section-title{margin-bottom:20px}.section-title h2{font-size:24px}
+  .public-stat-grid{gap:10px;margin-bottom:16px}.public-stat-grid article{min-width:0;padding:14px;border-radius:14px}.public-stat-grid span{gap:5px;font-size:11px}.public-stat-grid span svg{width:15px}.public-stat-grid strong{margin-top:8px;font-size:24px}.public-stat-grid small{font-size:10px;line-height:1.4}
+  .surface{padding:16px}.status-card h2{font-size:24px}.status-card p{font-size:13px}.status-card ul{gap:10px;font-size:12px}
+  .home-news-card p{font-size:12px;line-height:1.55}.home-news-card h3{line-height:1.25}.news-read{min-height:32px;align-items:center}
+  .footer-main p,.footer-main a,.footer-main small,.footer-install{font-size:12.5px;line-height:1.55}.footer-bottom{line-height:1.55}
+}
+@media(max-width:350px){
+  .public-nav{padding-inline:12px}.draft-strip{padding-inline:12px}.hero-content{padding-inline:16px}.hero-copy h1{font-size:35px}.page-wrap{padding-inline:16px}
+  .quick-links{margin-inline:10px}.quick-links strong{font-size:10px}.public-stat-grid article{padding:12px}.public-stat-grid strong{font-size:22px}
+  .footer-main{padding-inline:16px;gap:24px 14px}.footer-readiness{padding:15px}.footer-readiness strong{font-size:17px}
+}
+@media(max-width:767px){.quick-links{display:none}.overview{padding-top:56px}}

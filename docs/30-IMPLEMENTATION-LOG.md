@@ -409,3 +409,12 @@
 - Status acara pada beranda menggunakan “Persiapan” dan bukan istilah teknis “Draft”.
 - Perbedaan dari mockup yang dipertahankan secara sengaja: tidak ada e-scoring, Dewan Hakim, data 2025, lokasi generatif, foto yang diklaim resmi, ataupun angka hasil yang belum disahkan.
 - Lint, TypeScript strict, 22 unit test, build, dan enam skenario E2E portal publik lulus pada viewport acuan tanpa overflow.
+
+## Fase 25 — Audit tangkapan layar produksi 335 px (17 November 2026)
+
+- Dua tangkapan layar produksi berukuran 335×3674 dan 1920×3016 diperiksa bagian demi bagian terhadap mockup portal.
+- Viewport 335 px ditambahkan ke regresi visual karena lebih sempit dari acuan awal 360/390 px.
+- Navigasi cepat desktop disembunyikan pada ponsel karena menduplikasi bottom navigation dan menimbulkan tumpang tindih pada viewport awal/tangkapan layar panjang.
+- KPI, ruang antarseksi, kartu status, berita, footer, ukuran teks kecil, serta padding ponsel sempit dipadatkan tanpa mengurangi keterbacaan.
+- Desktop mempertahankan hero dua kolom, navigasi cepat tiga kolom, statistik 3 kolom, berita editorial 2/3–1/3, dan footer empat kolom seperti arah mockup.
+- Pengujian 335, 360, 390, 768, 1024, dan 1440 piksel memastikan body tidak memiliki overflow horizontal.

@@ -6,6 +6,7 @@ const viewports = [
   { name: '768', width: 768, height: 1024 },
   { name: '390', width: 390, height: 844 },
   { name: '360', width: 360, height: 800 },
+  { name: '335', width: 335, height: 760 },
 ]
 
 test('portal publik responsif pada viewport acuan', async ({ page }) => {
