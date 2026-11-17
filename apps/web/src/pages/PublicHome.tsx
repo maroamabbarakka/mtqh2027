@@ -16,6 +16,7 @@ import { brandAssets } from "@/config/brand-assets";
 import { Badge, Button, SectionTitle } from "@/components/ui";
 import { event } from "@/data/demo";
 import { publicNews } from "@/data/public-news";
+import heroArchitecture from "@/assets/hero/mtqh-hero-architecture-v1.jpg";
 
 const BranchChart = lazy(() => import("@/components/BranchChart"));
 
@@ -23,6 +24,7 @@ export function PublicHome() {
   return (
     <>
       <section className="hero">
+        <img className="hero-backdrop" src={heroArchitecture} alt="" aria-hidden="true" />
         <div className="hero-pattern" />
         <div className="hero-content">
           <div className="hero-copy">
@@ -181,6 +183,18 @@ export function PublicHome() {
             </article>)}
           </div>
         </div>
+      </section>
+      <section className="institutional-strip page-wrap" aria-labelledby="institutional-title">
+        <div className="institutional-logos" aria-hidden="true">
+          <img src={brandAssets.pinrangLogo} alt="" />
+          <img src={brandAssets.lptqLogo} alt="" />
+        </div>
+        <div>
+          <Badge tone="warning">IDENTITAS KELEMBAGAAN</Badge>
+          <h2 id="institutional-title">Portal informasi MTQH Kabupaten Pinrang</h2>
+          <p>Identitas Pemerintah Kabupaten Pinrang dan LPTQ ditampilkan sebagai penanda kelembagaan. Informasi kegiatan tetap menunggu pengesahan panitia.</p>
+        </div>
+        <span className="institutional-skyline" aria-hidden="true" />
       </section>
     </>
   );

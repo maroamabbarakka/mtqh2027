@@ -418,3 +418,15 @@
 - KPI, ruang antarseksi, kartu status, berita, footer, ukuran teks kecil, serta padding ponsel sempit dipadatkan tanpa mengurangi keterbacaan.
 - Desktop mempertahankan hero dua kolom, navigasi cepat tiga kolom, statistik 3 kolom, berita editorial 2/3–1/3, dan footer empat kolom seperti arah mockup.
 - Pengujian 335, 360, 390, 768, 1024, dan 1440 piksel memastikan body tidak memiliki overflow horizontal.
+
+## Fase 26 — Penyelarasan portal dengan mockup premium (17 November 2026)
+
+- Dua mockup terbaru diaudit berdasarkan komposisi, hierarki, tipografi, warna, kedalaman visual, perilaku responsif, dan keamanan penggunaan identitas.
+- Hero memakai aset arsitektur masjid generatif tanpa tulisan, logo, orang, atau klaim lokasi resmi. Logo MTQH tetap menggunakan aset proyek yang ditempatkan terpisah agar identitas tidak diubah oleh AI.
+- Aset hero dikompresi dari sumber PNG 2,15 MB menjadi JPEG 226 KB untuk mengurangi transfer data pada perangkat seluler dan menjaga penggunaan Firebase Hosting Spark.
+- Hero kini memiliki bidang teks emerald yang tenang, bingkai emas, lentera, arsitektur pada sisi kanan, CTA beraksen emas, kartu logo resmi, serta panel verifikasi yang lebih dekat dengan arahan mockup.
+- Navigasi cepat kembali ditampilkan secara vertikal pada ponsel sesuai mockup terbaru. Bottom navigation tetap melekat untuk perpindahan halaman dan setiap target sentuh mempertahankan ukuran yang aman.
+- Kartu KPI, grafik, panel persiapan, berita editorial, strip identitas desktop, dan footer mendapat pola dekoratif berkontras rendah tanpa mengganggu keterbacaan data.
+- Strip identitas hanya tampil pada desktop agar logo kelembagaan tidak berulang secara berlebihan pada layar sempit; footer tetap menjadi sumber identitas utama pada mobile.
+- Lint, TypeScript strict, 22 unit test, build produksi, dan tiga skenario E2E PWA/responsif lulus. Regresi visual diperiksa pada 390 dan 1440 piksel tanpa overflow horizontal.
+- Prompt aset: hero editorial arsitektur islami emerald–emas, masjid realistis di sisi kanan, bidang negatif gelap di sisi kiri, tanpa logo, tulisan, orang, atau watermark; dibuat melalui built-in image generation.
