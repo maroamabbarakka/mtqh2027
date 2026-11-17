@@ -13,6 +13,7 @@
     "emulators": "firebase emulators:start --only auth,firestore --project mtqh-pinrang-2027-demo",
     "seed:emulator": "node scripts/seed-emulator.mjs --confirm-emulator",
     "reset:emulator-demo": "node scripts/reset-emulator-demo.mjs --confirm-emulator",
+    "provision:production-users": "node scripts/provision-production-users.mjs",
     "build": "npm run build -w @mtqh/web && npm run build -w @mtqh/worker",
     "lint": "npm run lint -w @mtqh/web && npm run typecheck -w @mtqh/worker",
     "typecheck": "npm run typecheck -w @mtqh/web && npm run typecheck -w @mtqh/worker",
@@ -27,6 +28,7 @@
     "@firebase/rules-unit-testing": "^5.0.0",
     "@playwright/test": "^1.65.1",
     "firebase": "^12.6.0",
+    "firebase-admin": "^13.10.0",
     "firebase-tools": "^15.18.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.12"

@@ -430,3 +430,13 @@
 - Strip identitas hanya tampil pada desktop agar logo kelembagaan tidak berulang secara berlebihan pada layar sempit; footer tetap menjadi sumber identitas utama pada mobile.
 - Lint, TypeScript strict, 22 unit test, build produksi, dan tiga skenario E2E PWA/responsif lulus. Regresi visual diperiksa pada 390 dan 1440 piksel tanpa overflow horizontal.
 - Prompt aset: hero editorial arsitektur islami emerald–emas, masjid realistis di sisi kanan, bidang negatif gelap di sisi kiri, tanpa logo, tulisan, orang, atau watermark; dibuat melalui built-in image generation.
+
+## Fase 27 — Provisioning akun operasional produksi (17 November 2026)
+
+- Dibuat 26 akun Firebase Authentication produksi: enam peran pusat, 12 admin kafilah dengan scope kecamatan tunggal, dan delapan admin cabang dengan scope cabang tunggal.
+- Setiap akun memperoleh dokumen profil privat, `mustChangePassword`, assignment event-scoped, proyeksi `accessByEvent`, revision, dan audit provisioning tanpa menyimpan password di Firestore atau Git.
+- Provisioning memakai skrip dengan `--confirm-production`, pemeriksaan project target, mode dry-run, variabel lingkungan untuk password/API key, dan service account tepercaya untuk penulisan role.
+- Jalur Firebase Auth REST digunakan untuk pembuatan akun karena service account Worker berasal dari proyek IAM terpisah; role tetap hanya ditulis melalui kredensial server tepercaya.
+- Login produksi diverifikasi untuk peran super admin, admin kafilah Tiroang, dan admin cabang Tilawah. Ketiganya berhasil diautentikasi tanpa mencetak token.
+- Pengguna dapat melengkapi profil dan mengganti kata sandi melalui menu Keamanan Akun; role dan scope tetap tidak dapat diedit oleh pengguna.
+- Daftar username dan prosedur operasional dicatat di `docs/32-PRODUCTION-ACCOUNTS.md`; kata sandi sementara sengaja tidak dicatat dalam repository.

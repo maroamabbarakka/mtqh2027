@@ -14,7 +14,7 @@
 - [ ] Fallback ketika limit habis diuji dan tidak menawarkan upgrade.
 
 ## Keamanan
-- [ ] Self-assigned roles ditolak; super admin bootstrap aman.
+- [x] Self-assigned roles ditolak; super admin dan akun operasional produksi dibootstrap melalui jalur tepercaya dengan scope minimal.
 - [ ] All RBAC scope negative tests lolos.
 - [ ] No PII di publicEvents/API/galeri.
 - [ ] Approval/publish idempotent, server-authorized, audit recorded.
