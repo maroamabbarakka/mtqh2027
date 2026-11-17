@@ -127,6 +127,23 @@ beforeEach(async () => {
         updatedAt: new Date(),
         idempotencyKey: "seed-division",
       }),
+      setDoc(doc(db, `events/${eventId}/venues/arena-simulasi-1`), {
+        id: "arena-simulasi-1",
+        eventId,
+        name: "Arena Simulasi 1",
+        status: "draft",
+      }),
+      setDoc(doc(db, `events/${eventId}/schedules/sesi-simulasi-1`), {
+        eventId,
+        branchId: "tilawah",
+        divisionId: "contoh-tilawah-putra",
+        venueId: "arena-simulasi-1",
+        title: "Jadwal Simulasi",
+        date: "2027-01-10",
+        startTime: "08:00",
+        endTime: "11:30",
+        status: "draft",
+      }),
       setDoc(doc(db, `events/${eventId}/participants/p-tiroang`), {
         districtId: "tiroang",
         name: "Peserta Contoh 001",
@@ -182,6 +199,12 @@ beforeEach(async () => {
 });
 
 describe("Firestore RBAC dan isolasi data", () => {
+  it("mengizinkan akun aktif membaca jadwal draf dan menolak perubahan dari browser", async () => {
+    const reader = environment.authenticatedContext("kafilah-tiroang").firestore();
+    const target = doc(reader, `events/${eventId}/schedules/sesi-simulasi-1`);
+    await assertSucceeds(getDoc(target));
+    await assertFails(updateDoc(target, { title: "Perubahan tanpa kewenangan" }));
+  });
   it("mengizinkan admin kafilah membaca wilayah sendiri dan menolak wilayah lain", async () => {
     const db = environment
       .authenticatedContext("kafilah-tiroang", {

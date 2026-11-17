@@ -202,6 +202,7 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
     `events/${eventId}/districts`,
     `events/${eventId}/branches`,
     `events/${eventId}/divisions`,
+    `events/${eventId}/venues`,
     `events/${eventId}/participants`,
     `events/${eventId}/teams`,
     `events/${eventId}/registrations`,
@@ -265,6 +266,13 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
       }),
     ),
   );
+  const venues = [1, 2, 3, 4].map((number) => ({
+    id: `arena-simulasi-${number}`,
+    name: `Arena Simulasi ${number}`,
+  }));
+  await Promise.all(venues.map((item) => setDoc(doc(firestore, `events/${eventId}/venues`, item.id), {
+    ...item, eventId, description: "Lokasi simulasi internal; bukan arena resmi.", status: "draft", updatedAt: new Date(),
+  })));
   const registrations = divisions.flatMap((item, divisionIndex) => [1, 2, 3].map((rank) => {
     const suffix = String(rank).padStart(3, "0");
     const entryId = item.id === "contoh-tilawah-putra" ? `verified-tilawah-${suffix}` : `simulasi-${item.id}-${rank}`;
@@ -289,7 +297,7 @@ await testEnvironment.withSecurityRulesDisabled(async (context) => {
     }),
   ));
   await Promise.all(divisions.map((item, index) => setDoc(doc(firestore, `events/${eventId}/schedules`, `simulasi-${item.id}`), {
-    eventId, branchId: item.branchId, divisionId: item.id, venueId: null, title: `Jadwal Simulasi ${item.name}`,
+    eventId, branchId: item.branchId, divisionId: item.id, venueId: venues[index % venues.length].id, title: `Jadwal Simulasi ${item.name}`,
     date: `2027-01-${String(10 + (index % 12)).padStart(2, "0")}`, startTime: "08:00", endTime: "11:30",
     status: "draft", notes: "Data simulasi; bukan jadwal resmi panitia.", updatedAt: new Date(),
   })));

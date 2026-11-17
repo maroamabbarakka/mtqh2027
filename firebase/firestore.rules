@@ -189,6 +189,16 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      match /venues/{venueId} {
+        allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
+        allow write: if false;
+      }
+
+      match /schedules/{scheduleId} {
+        allow read: if hasRole(eventId, ['super_admin','event_admin','oversight','kafilah_admin','branch_admin','verifier','editor','contributor']);
+        allow write: if false;
+      }
+
       match /eventAudit/{auditId} {
         allow get, list: if hasRole(eventId, ['super_admin','event_admin','oversight']);
         allow create: if ((masterAdmin(eventId)

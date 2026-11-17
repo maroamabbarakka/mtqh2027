@@ -7,6 +7,7 @@ import { AccountPage } from "@/pages/AccountPage";
 import { MasterDataPage } from "@/pages/MasterDataPage";
 import { RegistrationPage } from "@/pages/RegistrationPage";
 import { ResultsPage } from "@/pages/ResultsPage";
+import { SchedulePage } from "@/pages/SchedulePage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 export default function AdminRoutes() {
@@ -25,16 +26,7 @@ export default function AdminRoutes() {
             <Route element={<ProtectedRoute permission="results:view" />}>
               <Route path="hasil" element={<ResultsPage />} />
             </Route>
-            <Route
-              path="jadwal"
-              element={
-                <PlaceholderPage
-                  title="Jadwal & Arena"
-                  description="Tanggal dan venue rinci belum disahkan panitia."
-                  admin
-                />
-              }
-            />
+            <Route path="jadwal" element={<SchedulePage />} />
             <Route element={<ProtectedRoute permission="news:write" />}>
               <Route
                 path="media"

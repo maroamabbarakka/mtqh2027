@@ -340,3 +340,11 @@
 
 - Setiap perpindahan halaman membaca maksimal 26 dokumen; dokumen ke-26 hanya dipakai untuk mengetahui keberadaan halaman berikutnya.
 - Tidak ada realtime listener, count aggregation, atau pembacaan seluruh koleksi.
+## Fase 17 — Peninjauan jadwal dan arena draf (17 November 2026)
+
+- Route admin Jadwal & Arena kini memuat maksimal 50 sesi draf dan lokasi simulasi tanpa membuka operasi tulis dari browser.
+- Filter cabang, tanggal simulasi, pencarian golongan/arena, serta reset filter tersedia pada desktop dan mobile.
+- Seluruh kartu memakai label `SIMULASI`; tanggal, waktu, dan arena ditegaskan belum resmi.
+- Firestore Rules mengizinkan akun aktif membaca jadwal internal dan menolak create/update/delete; pengujian Rules bertambah menjadi 17 skenario.
+- Seed emulator menyediakan empat arena simulasi dan 46 sesi draf. Tidak ada jadwal yang diproyeksikan ke koleksi publik.
+- Lint, TypeScript strict, 44 unit test, Rules, build, dan E2E desktop/mobile lulus.
