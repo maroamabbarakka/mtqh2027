@@ -367,3 +367,13 @@
 - Tombol tambah arena dan sesi tetap tersedia pada layar kecil, sedangkan area tindakan modal dibuat melekat di bawah agar mudah dijangkau.
 - Label, contoh isian, penanda opsional, efek fokus, hover kartu, pemenggalan teks, dan kontras informasi draf diselaraskan.
 - E2E mencakup pesan validasi, penyimpanan arena/sesi, serta pemeriksaan overflow desktop dan mobile. Bukti visual tersedia di `artifacts/screenshots/phase-19/`.
+
+## Fase 20 — Perapian bahasa dan pengalaman masuk (17 November 2026)
+
+- Pilihan “Ingat email” kini benar-benar bekerja dengan penyimpanan lokal khusus alamat email; kata sandi tidak pernah disimpan.
+- Pengguna dapat membatalkan penyimpanan email dan nilainya langsung dihapus dari perangkat.
+- Pesan kegagalan layanan tidak lagi menyebut nama teknologi internal, sedangkan halaman akun menunggu aktivasi memakai bahasa yang lebih mudah dipahami.
+- Halaman fitur bertahap tidak lagi menampilkan istilah teknis seperti `draft-only` atau data produksi.
+- Tombol pemulihan keadaan gagal kini memiliki tindakan muat ulang yang nyata dan hanya ditampilkan jika tindakan tersedia.
+- Ikon kembali, susunan tautan, serta tampilan halaman masuk desktop/mobile dirapikan dan diuji tanpa overflow.
+- Bukti visual tersedia di `artifacts/screenshots/phase-20/`.

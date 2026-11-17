@@ -18,7 +18,7 @@ export function ProtectedRoute({ permission }: { permission?: Permission }) {
   if (!auth.configured)
     return (
       <main className="center-page">
-        <StatePanel type="error" />
+        <StatePanel type="error" onRetry={() => window.location.reload()} />
       </main>
     );
   if (!auth.user)

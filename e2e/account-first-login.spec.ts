@@ -1,5 +1,23 @@
 import { expect, test } from '@playwright/test'
 
+test('pilihan mengingat email bekerja tanpa menyimpan kata sandi', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/login')
+  await page.getByLabel('Email', { exact: true }).fill('panitia@example.test')
+  await page.getByLabel('Ingat email di perangkat ini').check()
+  await page.reload()
+  await expect(page.getByLabel('Email', { exact: true })).toHaveValue('panitia@example.test')
+  await expect(page.getByLabel('Kata sandi', { exact: true })).toHaveValue('')
+  await expect(page.getByLabel('Ingat email di perangkat ini')).toBeChecked()
+  await page.screenshot({ path: 'artifacts/screenshots/phase-20/login-remember-email-1440.png', fullPage: true })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.screenshot({ path: 'artifacts/screenshots/phase-20/login-remember-email-390.png', fullPage: true })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false)
+  await page.getByLabel('Ingat email di perangkat ini').uncheck()
+  await page.reload()
+  await expect(page.getByLabel('Email', { exact: true })).toHaveValue('')
+})
+
 test('super admin wajib mengganti password lalu dapat melengkapi profil', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('Email', { exact: true }).fill('superadmin@example.test')

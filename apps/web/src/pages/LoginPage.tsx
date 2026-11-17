@@ -3,7 +3,7 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -24,24 +24,30 @@ const schema = z.object({
     ),
 });
 type LoginValues = z.infer<typeof schema>;
+const rememberedEmailKey = "mtqh-remembered-email";
 
 export function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(() => Boolean(localStorage.getItem(rememberedEmailKey)));
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
-  } = useForm<LoginValues>({ resolver: zodResolver(schema) });
+  } = useForm<LoginValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: localStorage.getItem(rememberedEmailKey) ?? "", password: "" },
+  });
   if (!auth.loading && auth.user && auth.assignments.length > 0)
     return <Navigate to="/app/dashboard" replace />;
   const submit = handleSubmit(async (values) => {
     const services = getFirebaseServices();
     if (!services) {
-      setServerError("Konfigurasi Firebase belum tersedia.");
+      setServerError("Layanan masuk belum tersedia. Silakan coba beberapa saat lagi.");
       return;
     }
     try {
@@ -57,6 +63,8 @@ export function LoginPage() {
         "login",
         "Berhasil masuk ke portal",
       );
+      if (rememberEmail) localStorage.setItem(rememberedEmailKey, values.email);
+      else localStorage.removeItem(rememberedEmailKey);
       const destination =
         (location.state as { from?: string } | null)?.from ?? "/app/dashboard";
       navigate(destination, { replace: true });
@@ -95,7 +103,7 @@ export function LoginPage() {
       <section className="auth-form-panel">
         <div className="auth-form-wrap">
           <Link to="/" className="back-public">
-            ← Kembali ke portal publik
+            <ArrowLeft size={15} /> Kembali ke portal publik
           </Link>
           <div className="auth-heading">
             <span className="auth-icon">
@@ -148,7 +156,7 @@ export function LoginPage() {
             </label>
             <div className="form-meta">
               <label className="check">
-                <input type="checkbox" /> Ingat email di perangkat ini
+                <input type="checkbox" checked={rememberEmail} onChange={(event) => { setRememberEmail(event.target.checked); if (event.target.checked) localStorage.setItem(rememberedEmailKey, getValues("email")); else localStorage.removeItem(rememberedEmailKey); }} /> Ingat email di perangkat ini
               </label>
               <Link to="/lupa-password">Lupa kata sandi?</Link>
             </div>
@@ -174,7 +182,7 @@ export function ForgotPasswordPage() {
     event.preventDefault();
     const services = getFirebaseServices();
     if (!services) {
-      setError("Konfigurasi Firebase belum tersedia.");
+      setError("Layanan pemulihan belum tersedia. Silakan coba beberapa saat lagi.");
       return;
     }
     try {
@@ -219,7 +227,7 @@ export function ForgotPasswordPage() {
             <Button type="submit">Kirim tautan pemulihan</Button>
           </form>
         )}
-        <Link to="/login">← Kembali ke halaman masuk</Link>
+        <Link to="/login"><ArrowLeft size={15} /> Kembali ke halaman masuk</Link>
       </div>
     </main>
   );
