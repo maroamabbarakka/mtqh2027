@@ -4,5 +4,8 @@
   <url><loc>https://mtqhpinrang2027.web.app/jadwal</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
   <url><loc>https://mtqhpinrang2027.web.app/klasemen</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
   <url><loc>https://mtqhpinrang2027.web.app/berita</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mtqhpinrang2027.web.app/berita/persiapan-informasi-mtqh-dilakukan-bertahap</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://mtqhpinrang2027.web.app/berita/koordinasi-layanan-informasi-kafilah</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://mtqhpinrang2027.web.app/berita/peninjauan-kesiapan-ruang-kegiatan</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://mtqhpinrang2027.web.app/tentang</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>

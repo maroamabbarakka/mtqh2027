@@ -387,3 +387,13 @@
 - Footer publik dirapikan menjadi area identitas, navigasi, akses panitia, status verifikasi, logo pendukung, dan tombol instalasi yang hanya muncul bila perangkat mendukung.
 - `robots.txt` dan sitemap hanya memuat rute publik; rute akun dan administrasi tidak dianjurkan untuk pengindeksan.
 - Tampilan diverifikasi tanpa overflow pada 360, 390, 768, 1024, dan 1440 piksel. Bukti visual tersedia di `artifacts/screenshots/phase-21/`.
+
+## Fase 22 — Detail klasemen dan berita simulasi (17 November 2026)
+
+- Footer publik diseimbangkan menjadi dua area utama: identitas portal serta kelompok tautan/status persiapan. Susunan berubah menjadi satu kolom pada tablet dan mobile tanpa ruang kosong berlebihan.
+- Nama kafilah pada klasemen dapat dipilih untuk membuka dialog rincian simulasi berisi medali, jumlah peserta contoh, total medali, dan pratinjau cabang.
+- Dialog mendukung tombol Escape, penguncian scroll, pengembalian fokus, penutupan melalui backdrop, serta tampilan lembar bawah pada layar kecil.
+- Tiga berita dummy lengkap ditambahkan pada modul data terisolasi `public-news.ts`, sehingga seluruhnya dapat dibersihkan tanpa menyentuh data resmi.
+- Setiap berita memiliki halaman detail, metadata, label simulasi, redaksi lengkap, dan peringatan bahwa konten bukan pengumuman resmi.
+- Tiga cover editorial dibuat khusus untuk prototipe, tidak memuat logo, teks, data pribadi, skor, maupun klaim dokumentasi resmi; aset dikompresi ke WebP.
+- Beranda, halaman berita, popup klasemen, footer, dan route detail diuji pada desktop dan mobile. Bukti visual tersedia di `artifacts/screenshots/phase-22/`.

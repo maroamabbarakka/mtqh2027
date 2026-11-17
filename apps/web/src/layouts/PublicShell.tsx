@@ -64,12 +64,14 @@ export function PublicShell() {
       <main id="main" tabIndex={-1}><Outlet /></main>
       <footer className="public-footer">
         <div className="footer-main">
-          <div className="footer-about"><Brand inverse /><p>Portal informasi dan administrasi MTQH XXXV Kabupaten Pinrang 2027.</p><span className="footer-status"><ShieldCheck size={16} /> Informasi resmi diterbitkan setelah verifikasi</span></div>
-          <div><h2>Navigasi</h2>{nav.slice(0, 4).map((item) => <NavLink key={item.to} to={item.to} end={item.end}>{item.label}</NavLink>)}</div>
-          <div><h2>Akses</h2><NavLink to="/tentang">Tentang portal</NavLink><NavLink to="/login">Masuk panitia</NavLink>{installPrompt && <button className="footer-install" onClick={() => void installApp()}><Download size={16} /> Pasang aplikasi</button>}</div>
-          <div><h2>Identitas pendukung</h2><div className="footer-logos"><img src={brandAssets.pinrangLogo} alt="Lambang Kabupaten Pinrang" /><img src={brandAssets.lptqLogo} alt="Lambang LPTQ Kabupaten Pinrang" /></div><small>Aset menunggu verifikasi akhir panitia.</small></div>
+          <div className="footer-about"><Brand inverse /><p>Portal informasi dan administrasi MTQH XXXV Kabupaten Pinrang 2027 yang ramah perangkat seluler.</p><span className="footer-status"><ShieldCheck size={16} /> Informasi resmi diterbitkan setelah verifikasi</span><div className="footer-logos" aria-label="Identitas pendukung"><img src={brandAssets.pinrangLogo} alt="Lambang Kabupaten Pinrang" /><img src={brandAssets.lptqLogo} alt="Lambang LPTQ Kabupaten Pinrang" /></div><small>Penggunaan identitas menunggu verifikasi akhir panitia.</small></div>
+          <div className="footer-links">
+            <div><h2>Jelajahi</h2>{nav.slice(0, 4).map((item) => <NavLink key={item.to} to={item.to} end={item.end}>{item.label}</NavLink>)}</div>
+            <div><h2>Portal</h2><NavLink to="/tentang">Tentang portal</NavLink><NavLink to="/login">Masuk panitia</NavLink>{installPrompt && <button className="footer-install" onClick={() => void installApp()}><Download size={16} /> Pasang aplikasi</button>}</div>
+            <div className="footer-readiness"><Badge tone="gold">STATUS PERSIAPAN</Badge><strong>Informasi diterbitkan bertahap</strong><p>Tanggal, arena, dan ketentuan resmi menunggu keputusan panitia.</p></div>
+          </div>
         </div>
-        <div className="footer-bottom"><span>© 2027 MTQH Kabupaten Pinrang</span><span>Waktu ditampilkan dalam WITA</span></div>
+        <div className="footer-bottom"><span>© 2027 MTQH Kabupaten Pinrang</span><span>Waktu ditampilkan dalam WITA · Data simulasi ditandai dengan jelas</span></div>
       </footer>
       <nav className="bottom-nav" aria-label="Navigasi seluler">
         <NavLink to="/" end><Home /><span>Beranda</span></NavLink>

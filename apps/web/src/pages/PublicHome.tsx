@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { brandAssets } from "@/config/brand-assets";
 import { Badge, Button, SectionTitle } from "@/components/ui";
 import { event } from "@/data/demo";
+import { publicNews } from "@/data/public-news";
 
 const BranchChart = lazy(() => import("@/components/BranchChart"));
 
@@ -173,13 +174,11 @@ export function PublicHome() {
               </Link>
             }
           />
-          <div className="empty-news">
-            <Newspaper />
-            <h3>Belum ada berita diterbitkan</h3>
-            <p>
-              Konten simulasi tidak ditampilkan sebagai berita aktual. Artikel
-              akan muncul setelah melewati moderasi redaksi.
-            </p>
+          <div className="home-news-grid">
+            {publicNews.slice(0, 3).map((article) => <article className="home-news-card" key={article.slug}>
+              <Link className="home-news-cover" to={`/berita/${article.slug}`}><img src={article.cover} alt={article.coverAlt} /></Link>
+              <div><Badge tone="warning">SIMULASI · {article.category.toUpperCase()}</Badge><h3><Link to={`/berita/${article.slug}`}>{article.title}</Link></h3><p>{article.excerpt}</p><Link className="news-read" to={`/berita/${article.slug}`}>Baca artikel <ArrowRight /></Link></div>
+            </article>)}
           </div>
         </div>
       </section>

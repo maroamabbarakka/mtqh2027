@@ -4,6 +4,8 @@ import { PublicShell } from '@/layouts/PublicShell'
 import { PublicHome } from '@/pages/PublicHome'
 import { StandingsPage } from '@/pages/StandingsPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
+import { NewsPage } from '@/pages/NewsPage'
+import { NewsDetailPage } from '@/pages/NewsDetailPage'
 import { StatePanel } from '@/components/ui'
 
 const AuthPages=lazy(()=>import('./AuthPages'))
@@ -16,7 +18,8 @@ export default function App() {
       <Route index element={<PublicHome/>}/>
       <Route path="klasemen" element={<StandingsPage/>}/>
       <Route path="jadwal" element={<PlaceholderPage title="Jadwal Lomba" description="Jadwal resmi belum diterbitkan. Halaman siap menerima data yang telah disahkan."/>}/>
-      <Route path="berita" element={<PlaceholderPage title="Berita & Galeri" description="Publik hanya dapat melihat berita dan media yang telah melalui moderasi redaksi."/>}/>
+      <Route path="berita" element={<NewsPage/>}/>
+      <Route path="berita/:slug" element={<NewsDetailPage/>}/>
       <Route path="tentang" element={<PlaceholderPage title="Tentang MTQH" description="Informasi penyelenggaraan akan dilengkapi setelah materi resmi diterima."/>}/>
     </Route>
     <Route path="login" element={<Suspense fallback={fallback}><AuthPages page="login"/></Suspense>}/>
